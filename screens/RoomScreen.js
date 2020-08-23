@@ -18,10 +18,9 @@ import { IconButton } from "react-native-paper";
 import { AuthContext } from "../navigation/AuthProvider";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-
+ console.disableYellowBox=true;
 import { firebase } from "../components/firebase";
 import useStatusBar from "../utils/useStatusBar";
-
 const RoomScreen = ({ route }) => {
   useStatusBar("light-content");
   const { user } = useContext(AuthContext);
@@ -53,7 +52,6 @@ const RoomScreen = ({ route }) => {
 
   const handleSend = async (messages) => {
     const text = messages[0].text;
-
     firebase
       .firestore()
       .collection("THREADS")
@@ -61,8 +59,8 @@ const RoomScreen = ({ route }) => {
       .collection("MESSAGES")
       .add({
         text,
-
         createdAt: new Date().getTime(),
+        image:imagePicked,
         user: {
           _id: currentUser.uid,
           email: currentUser.email,
@@ -76,7 +74,7 @@ const RoomScreen = ({ route }) => {
         {
           latestMessage: {
             text,
-
+            image:imagePicked,
             createdAt: new Date().getTime(),
           },
         },
@@ -84,6 +82,9 @@ const RoomScreen = ({ route }) => {
       );
   };
 
+const sendrr =() =>{
+  //
+}
   useEffect(() => {
     const messagesListener = firebase
       .firestore()
@@ -98,7 +99,7 @@ const RoomScreen = ({ route }) => {
           const data = {
             _id: doc.id,
             text: "",
-
+            image:doc.image,
             createdAt: new Date().getTime(),
             ...firebaseData,
           };
@@ -126,10 +127,10 @@ const RoomScreen = ({ route }) => {
 
   const handlePickImage = async () => {
     try {
-      const result = await ImagePicker.launchImageLibraryAsync();
-      if (!result.cancelled) {
-        setImagePicked(result.uri);
-      }
+      const result = await ImagePicker.launchImageLibraryAsync({
+        base64:true,
+       } );
+  setImagePicked(result.uri);
     } catch (error) {
       console.log("Camera Permission error");
     }
@@ -148,8 +149,11 @@ const RoomScreen = ({ route }) => {
             color={colors.medium}
           />
         )}
-        //onSend={} // image is not sending to chat screen
+        onSend={
+         sendrr
+        }
       />
+      
     );
   };
 
@@ -227,6 +231,10 @@ const RoomScreen = ({ route }) => {
       showUserAvatar
       alwaysShowSend
       scrollToBottom
+      scrollToBottomComponent={() => (
+        <Ionic name='ios-arrow-round-down' size={30} color='#000' />
+      )}
+
     />
   );
 };
