@@ -130,7 +130,7 @@ const sendrr =() =>{
       const result = await ImagePicker.launchImageLibraryAsync({
         base64:true,
        } );
-  setImagePicked(result.uri);
+  setImagePicked(blob);
     } catch (error) {
       console.log("Camera Permission error");
     }
