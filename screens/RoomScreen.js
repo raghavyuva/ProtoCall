@@ -5,6 +5,7 @@ import {
   View,
   ActivityIndicator,
   ImagePickerIOS,
+  TouchableOpacity
 } from "react-native";
 import {
   GiftedChat,
@@ -13,14 +14,18 @@ import {
   SystemMessage,
   Actions,
 } from "react-native-gifted-chat";
+import { Ionic } from '@expo/vector-icons';
 import colors from "../config/colors";
 import { IconButton } from "react-native-paper";
 import { AuthContext } from "../navigation/AuthProvider";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
- console.disableYellowBox=true;
-import { firebase } from "../components/firebase";
+console.disableYellowBox = true;
+import { firebase } from '../components/firebase'
 import useStatusBar from "../utils/useStatusBar";
+import 'firebase/auth';
+import 'firebase/firestore';
+require('firebase/storage');
 const RoomScreen = ({ route }) => {
   useStatusBar("light-content");
   const { user } = useContext(AuthContext);
@@ -60,7 +65,6 @@ const RoomScreen = ({ route }) => {
       .add({
         text,
         createdAt: new Date().getTime(),
-        image:imagePicked,
         user: {
           _id: currentUser.uid,
           email: currentUser.email,
@@ -74,17 +78,54 @@ const RoomScreen = ({ route }) => {
         {
           latestMessage: {
             text,
-            image:imagePicked,
             createdAt: new Date().getTime(),
           },
         },
         { merge: true }
       );
   };
+  const uploadImage = async (uri) => {
+    return new Promise(async (res, rej) => {
+      const response = await fetch(uri);
+      const blob = await response.blob();
+      let upload = firebase.storage().ref(`images/${currentUser.uid}/${Date.now()}`).put(blob)
+      upload.on(
+        "state_changed",
+        snapshot => { },
+        err => {
+          rej(err);
+        },
+        async () => {
+          const url = await upload.snapshot.ref.getDownloadURL();
+          res(url);
+          console.log(url);
+          firebase.firestore().collection('THREADS').doc(thread._id).collection('MESSAGES').add({
+            image: url,
+            createdAt: new Date().getTime(),
+            user: {
+              _id: currentUser.uid,
+              email: currentUser.email,
+            }
+          })
+          await firebase
+            .firestore()
+            .collection("THREADS")
+            .doc(thread._id)
+            .set(
+              {
+                latestMessage: {
+                  image,
+                  createdAt: new Date().getTime(),
+                },
+              },
+              { merge: true }
+            );
+        })
+    })
+  }
+  const sendrr = async () => {
 
-const sendrr =() =>{
-  //
-}
+  };
   useEffect(() => {
     const messagesListener = firebase
       .firestore()
@@ -99,7 +140,6 @@ const sendrr =() =>{
           const data = {
             _id: doc.id,
             text: "",
-            image:doc.image,
             createdAt: new Date().getTime(),
             ...firebaseData,
           };
@@ -128,9 +168,10 @@ const sendrr =() =>{
   const handlePickImage = async () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
-        base64:true,
-       } );
-  setImagePicked(blob);
+        base64: true,
+      });
+
+      uploadImage(result.uri)
     } catch (error) {
       console.log("Camera Permission error");
     }
@@ -138,22 +179,24 @@ const sendrr =() =>{
 
   const renderActions = () => {
     return (
-      <Actions
-        options={{
-          ["send Image"]: handlePickImage,
-        }}
-        icon={() => (
-          <MaterialCommunityIcons
-            name={"attachment"}
-            size={20}
-            color={colors.medium}
-          />
-        )}
-        onSend={
-         sendrr
-        }
-      />
-      
+      <View style={{ marginRight: 10, flexDirection: 'row' }}>
+        <Actions
+          options={{
+            ["send Image"]: handlePickImage,
+          }}
+          icon={() => (
+            <MaterialCommunityIcons
+              name={"attachment"}
+              size={20}
+              color={colors.medium}
+            />
+          )}
+          onSend={
+            sendrr
+          }
+        />
+      </View>
+
     );
   };
 
@@ -231,10 +274,7 @@ const sendrr =() =>{
       showUserAvatar
       alwaysShowSend
       scrollToBottom
-      scrollToBottomComponent={() => (
-        <Ionic name='ios-arrow-round-down' size={30} color='#000' />
-      )}
-
+      renderChatEmpty={renderLoading}
     />
   );
 };

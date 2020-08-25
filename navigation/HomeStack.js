@@ -7,7 +7,7 @@ import AddRoomScreen from "../screens/AddRoomScreen";
 import { AuthContext } from "./AuthProvider";
 import { IconButton } from "react-native-paper";
 import RoomScreen from "../screens/RoomScreen";
-
+import SuperAdmin from '../components/SuperAdmin';
 // const Stack = createStackNavigator();
 const ChatAppStack = createStackNavigator();
 const ModalStack = createStackNavigator();
@@ -36,7 +36,7 @@ const ChatApp = () => {
               icon="message-plus"
               size={28}
               color={colors.white}
-              onPress={() => navigation.navigate("AddRoom")}
+              onPress={() => navigation.navigate("SuperAdmin")}
             />
           ),
           headerLeft: () => (
@@ -65,7 +65,7 @@ const HomeStack = () => {
   return (
     <ModalStack.Navigator mode="modal" headerMode="none">
       <ModalStack.Screen name="ChatApp" component={ChatApp} />
-      <ModalStack.Screen name="AddRoom" component={AddRoomScreen} />
+      <ModalStack.Screen name="SuperAdmin" component={SuperAdmin} />
     </ModalStack.Navigator>
   );
 };
