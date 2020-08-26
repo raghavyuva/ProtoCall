@@ -3,9 +3,11 @@ import {
   StyleSheet,
   Text,
   View,
+  Image,
   ActivityIndicator,
   ImagePickerIOS,
-  TouchableOpacity
+  TouchableOpacity,
+  Dimensions
 } from "react-native";
 import {
   GiftedChat,
@@ -14,13 +16,20 @@ import {
   SystemMessage,
   Actions,
 } from "react-native-gifted-chat";
-import { Ionic } from '@expo/vector-icons';
+import { Video, Audio } from 'expo-av';
+import { CardItem } from 'native-base';
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+import { Avatar } from 'react-native-elements';
+import { BottomSheet } from 'react-native-btr';
+import { Ionic, MaterialIcons } from '@expo/vector-icons';
 import colors from "../config/colors";
-import { IconButton } from "react-native-paper";
+import { IconButton, } from "react-native-paper";
 import { AuthContext } from "../navigation/AuthProvider";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 console.disableYellowBox = true;
+import Constants from 'expo-constants';
+import * as Permissions from 'expo-permissions';
 import { firebase } from '../components/firebase'
 import useStatusBar from "../utils/useStatusBar";
 import 'firebase/auth';
@@ -33,6 +42,9 @@ const RoomScreen = ({ route }) => {
   const { thread } = route.params;
   const [messages, setMessages] = useState([]);
   const [imagePicked, setImagePicked] = useState();
+  const [visible, setVisible] = useState();
+  const [videoPicked, setVideoPicked] = useState();
+  const [AudioPicked, setAudioPicked] = useState();
   // const [messages, setMessages] = useState([
   //   {
   //     _id: 0,
@@ -54,6 +66,20 @@ const RoomScreen = ({ route }) => {
   // const handleSend = (newMessage = []) => {
   //   setMessages(GiftedChat.append(messages, newMessage));
   // };
+  const renderMessageVideo = (props) => {
+    const { currentMessage } = props;
+    return (
+      <View style={{ padding: 20 }}>
+        <Video
+          useNativeControls
+          shouldPlay={false}
+          source={{ uri: currentMessage.video }}
+          style={styles.video}
+          accessibilityViewIsModal
+        />
+      </View>
+    );
+  };
 
   const handleSend = async (messages) => {
     const text = messages[0].text;
@@ -84,6 +110,9 @@ const RoomScreen = ({ route }) => {
         { merge: true }
       );
   };
+  const _toggleBottomNavigationView = () => {
+    setVisible(!visible);
+  };
   const uploadImage = async (uri) => {
     return new Promise(async (res, rej) => {
       const response = await fetch(uri);
@@ -91,7 +120,9 @@ const RoomScreen = ({ route }) => {
       let upload = firebase.storage().ref(`images/${currentUser.uid}/${Date.now()}`).put(blob)
       upload.on(
         "state_changed",
-        snapshot => { },
+        snapshot => {
+          setImagePicked(uri);
+        },
         err => {
           rej(err);
         },
@@ -99,6 +130,7 @@ const RoomScreen = ({ route }) => {
           const url = await upload.snapshot.ref.getDownloadURL();
           res(url);
           console.log(url);
+          setImagePicked(null);
           firebase.firestore().collection('THREADS').doc(thread._id).collection('MESSAGES').add({
             image: url,
             createdAt: new Date().getTime(),
@@ -123,9 +155,93 @@ const RoomScreen = ({ route }) => {
         })
     })
   }
-  const sendrr = async () => {
-
-  };
+  const uploadvideo = async (uri) => {
+    return new Promise(async (res, rej) => {
+      const response = await fetch(uri);
+      const blob = await response.blob();
+      let upload = firebase.storage().ref(`videos/${currentUser.uid}/${Date.now()}`).put(blob)
+      upload.on(
+        "state_changed",
+        snapshot => {
+          setVideoPicked(uri);
+        },
+        err => {
+          rej(err);
+        },
+        async () => {
+          const url = await upload.snapshot.ref.getDownloadURL();
+          res(url);
+          console.log(url);
+          setVideoPicked(null);
+          firebase.firestore().collection('THREADS').doc(thread._id).collection('MESSAGES').add({
+            video: url,
+            createdAt: new Date().getTime(),
+            user: {
+              _id: currentUser.uid,
+              email: currentUser.email,
+            }
+          })
+          await firebase
+            .firestore()
+            .collection("THREADS")
+            .doc(thread._id)
+            .set(
+              {
+                latestMessage: {
+                  video,
+                  createdAt: new Date().getTime(),
+                },
+              },
+              { merge: true }
+            );
+        })
+    });
+  }
+  const uploadAudio = async (uri) => {
+    return new Promise(async (res, rej) => {
+      const response = await fetch(uri);
+      const blob = await response.blob();
+      let upload = firebase.storage().ref(`Audios/${currentUser.uid}/${Date.now()}`).put(blob)
+      upload.on(
+        "state_changed",
+        snapshot => {
+          setAudioPicked(uri);
+        },
+        err => {
+          rej(err);
+        },
+        async () => {
+          const url = await upload.snapshot.ref.getDownloadURL();
+          res(url);
+          console.log(url);
+          setAudioPicked(null);
+          firebase.firestore().collection('THREADS').doc(thread._id).collection('MESSAGES').add({
+            Audio: url,
+            createdAt: new Date().getTime(),
+            user: {
+              _id: currentUser.uid,
+              email: currentUser.email,
+            }
+          })
+          await firebase
+            .firestore()
+            .collection("THREADS")
+            .doc(thread._id)
+            .set(
+              {
+                latestMessage: {
+                  Audio,
+                  createdAt: new Date().getTime(),
+                },
+              },
+              { merge: true }
+            );
+        })
+    });
+  }
+  const _pickAudio = async () => {
+    //pick audio and upload function to pass an uri,
+  }
   useEffect(() => {
     const messagesListener = firebase
       .firestore()
@@ -165,41 +281,117 @@ const RoomScreen = ({ route }) => {
     ImagePickerComponent();
   }, []);
 
-  const handlePickImage = async () => {
+  const _pickImagefromGallery = async () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
         base64: true,
+        allowsEditing: true,
       });
-
       uploadImage(result.uri)
     } catch (error) {
       console.log("Camera Permission error");
+      alert('something went wrong contact developer');
     }
   };
-
+  const _pickImagefromCamera = async () => {
+    try {
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        base64: true,
+        allowsEditing: true,
+      });
+      uploadImage(result.uri)
+    } catch (error) {
+      console.log("Camera Permission error");
+      alert('something went wrong contact developer');
+    }
+  };
   const renderActions = () => {
     return (
-      <View style={{ marginRight: 10, flexDirection: 'row' }}>
-        <Actions
-          options={{
-            ["send Image"]: handlePickImage,
-          }}
-          icon={() => (
-            <MaterialCommunityIcons
-              name={"attachment"}
-              size={20}
-              color={colors.medium}
-            />
+      <View style={{ flexDirection: 'row' }}>
+        <TouchableOpacity onPress={_toggleBottomNavigationView}>
+          <MaterialIcons name="link" size={24} color="black" style={{ marginTop: 8 }} />
+        </TouchableOpacity>
+        {imagePicked == null ? (
+          <Text></Text>
+        ) : (
+            <View>
+              <Image source={{ uri: imagePicked }} style={{ width: 100, height: 80, }} />
+            </View>
+          )
+        }
+        {videoPicked == null ? (
+          <Text></Text>
+        ) : (
+            <Video source={{ uri: videoPicked }} style={{ width: 100, height: 100 }} />
           )}
-          onSend={
-            sendrr
-          }
-        />
+        {AudioPicked == null ? (
+          <Text></Text>
+        ) : (
+            <Audio source={{ uri: AudioPicked }} style={{ width: 100, height: 100 }} />
+          )}
+        <BottomSheet
+          visible={visible}
+          onBackButtonPress={_toggleBottomNavigationView}
+          onBackdropPress={_toggleBottomNavigationView}
+        >
+          <CardItem style={styles.bottomNavigationView}>
+            <View
+              style={{
+                flex: 1,
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+              }}>
+              <Text style={{ padding: 20, fontSize: 25, color: "white", fontWeight: 'bold' }}>
+                Select one
+              </Text>
+              <View style={{ flexDirection: 'row' }}>
+                <TouchableOpacity onPress={_pickImagefromGallery}>
+                  <Avatar rounded icon={{ name: 'image', color: 'black', type: 'font-awesome' }} size={60} iconStyle={{ color: 'black' }}
+                    overlayContainerStyle={{ backgroundColor: 'orange' }} containerStyle={{ marginLeft: 2, backgroundColor: 'red' }}>
+                  </Avatar>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={_pickImagefromCamera}>
+                  <Avatar rounded icon={{ name: 'camera', color: 'black', type: 'font-awesome' }} size={60} iconStyle={{ color: 'black' }}
+                    overlayContainerStyle={{ backgroundColor: 'orange' }} containerStyle={{ marginLeft: 8, backgroundColor: 'red' }}>
+                  </Avatar>
+                </TouchableOpacity>
+                <TouchableOpacity >
+                  <Avatar rounded icon={{ name: 'file', color: 'black', type: 'font-awesome' }} size={60} iconStyle={{ color: 'black' }}
+                    overlayContainerStyle={{ backgroundColor: 'orange' }} containerStyle={{ marginLeft: 8, backgroundColor: 'red' }}>
+                  </Avatar>
+                </TouchableOpacity>
+                <TouchableOpacity >
+                  <Avatar rounded icon={{ name: 'music', color: 'black', type: 'font-awesome' }} size={60} iconStyle={{ color: 'black' }}
+                    overlayContainerStyle={{ backgroundColor: 'orange' }} containerStyle={{ marginLeft: 8, backgroundColor: 'red' }}>
+                  </Avatar>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={_pickVideo}>
+                  <Avatar rounded icon={{ name: 'video-camera', color: 'black', type: 'font-awesome' }} size={60} iconStyle={{ color: 'black' }}
+                    overlayContainerStyle={{ backgroundColor: 'orange' }} containerStyle={{ marginLeft: 8, backgroundColor: 'red' }}>
+                  </Avatar>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </CardItem>
+        </BottomSheet>
       </View>
 
     );
   };
-
+  const _pickVideo = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+        base64: true,
+      });
+      uploadvideo(result.uri)
+    } catch (error) {
+      console.log("Camera Permission error");
+      alert('something went wrong contact developer');
+    }
+  }
   const renderBubble = (props) => {
     return (
       <Bubble
@@ -257,6 +449,7 @@ const RoomScreen = ({ route }) => {
     );
   };
 
+
   return (
     <GiftedChat
       messages={messages}
@@ -271,9 +464,11 @@ const RoomScreen = ({ route }) => {
       renderLoading={renderLoading}
       renderSystemMessage={renderSystemMessage}
       placeholder="Start Chatting..."
+      renderMessageVideo={renderMessageVideo}
       showUserAvatar
       alwaysShowSend
       scrollToBottom
+      textInputProps
       renderChatEmpty={renderLoading}
     />
   );
@@ -300,4 +495,68 @@ const styles = StyleSheet.create({
     color: colors.medium,
     fontWeight: "100",
   },
+  screen: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: '#0E043B',
+    textAlign: 'center',
+  },
+  MainContainer: {
+    flex: 1,
+    margin: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: Platform.OS === 'ios' ? 20 : 0,
+    backgroundColor: '#E0F7FA',
+  },
+  bottomNavigationView: {
+    backgroundColor: '#0E043B',
+    width: '100%',
+    height: 250,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 15
+  },
+  logo: {
+    fontSize: 24,
+    textAlign: 'center',
+    color: 'yellow',
+  },
+  card: {
+    backgroundColor: '#0E043B',
+    height: screenHeight
+  },
+  fieldtitle: {
+    color: 'white',
+  },
+  fieldinput: {
+    color: 'yellow',
+    width: screenWidth - 60,
+  },
+  submission: {
+    marginTop: 15,
+    borderColor: null,
+  },
+  submit: {
+    backgroundColor: '#5F7',
+    borderRadius: 26,
+    width: 170,
+    justifyContent: 'center'
+  },
+  submittext: {
+    color: 'black',
+    textTransform: 'capitalize',
+  },
+  signup: {
+    color: 'red',
+    fontSize: 20
+  },
+  fieldtitl: {
+    color: '#FFF',
+    borderColor: null,
+  },
+  video: {
+    width: screenWidth - 100,
+    height: 300,
+  }
 });
