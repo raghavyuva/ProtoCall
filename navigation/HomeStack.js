@@ -14,7 +14,9 @@ const ModalStack = createStackNavigator();
 
 const ChatApp = () => {
   const { logout } = useContext(AuthContext);
-
+  const { user } = useContext(AuthContext);
+  const currentUser = user.toJSON();
+  const Super = currentUser.email;
   return (
     <ChatAppStack.Navigator
       screenOptions={{
@@ -26,6 +28,7 @@ const ChatApp = () => {
           fontSize: 22,
         },
       }}
+      headerMode='none'
     >
       <ChatAppStack.Screen
         name="Home"
@@ -33,11 +36,11 @@ const ChatApp = () => {
         options={({ navigation }) => ({
           headerRight: () => (
             <IconButton
-              icon="message-plus"
-              size={28}
-              color={colors.white}
-              onPress={() => navigation.navigate("SuperAdmin")}
-            />
+            icon="message-plus"
+            size={28}
+            color={colors.white}
+            onPress={() => navigation.navigate("SuperAdmin")}
+         />
           ),
           headerLeft: () => (
             <IconButton

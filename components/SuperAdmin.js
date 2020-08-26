@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react';
+import React, { Component, useState,useContext, } from 'react';
 import { Image, StyleSheet, SafeAreaView, FlatList, Dimensions, Share } from 'react-native';
 import { Container, Header, Content, Card, CardItem, Thumbnail, Text, Button, Icon, Left, Body, Drawer, View, ListItem, Right, Radio, List, Title, ActionSheet, Form, Picker, Item, Input, Label } from 'native-base';
 import * as Font from 'expo-font';
@@ -21,12 +21,12 @@ export default class SuperAdmin extends React.Component {
         selected: "0",
         data:""
     }
-    onRoleValueChange() {
+    onRoleValueChange(value) {
         this.setState({
             role: value
         });
     }
-    onDataValueChange() {
+    onDataValueChange(value) {
         this.setState({
             selected: value
         });
@@ -53,13 +53,13 @@ export default class SuperAdmin extends React.Component {
                 name: this.state.groupname,
                 password: this.state.gpassword,
                 latestMessage: {
-                    text: `You have created the group ${this.state.groupname}`,
+                    text: `Admin has created the group ${this.state.groupname}`,
                     createdAt: new Date().getTime(),
                 },
             })
                 .then((docRef) => {
                     docRef.collection("MESSAGES").add({
-                        text: `You have joined the Group ${this.state.groupname}`,
+                        text: `you have joined the Group ${this.state.groupname}`,
                         createdAt: new Date().getTime(),
                         system: true,
                     });
@@ -125,13 +125,15 @@ export default class SuperAdmin extends React.Component {
                 <View style={{ margin: 25, }}>
                     <Item rounded>
                         <Input placeholder='Group Name Goes here'
-                            onChangeText={(groupname) => this.setState({ groupname })} value={this.state.groupname}
+                            onChangeText={(groupname) => this.setState({ groupname })} 
+                            value={this.state.groupname}
                         />
                     </Item>
                     <Item rounded style={styles.item}>
                         <Input placeholder='Enter password to protect'
                             style={styles.item}
-                            onChangeText={(gpassword) => this.setState({ gpassword })} value={this.state.gpassword}
+                            onChangeText={(gpassword) => this.setState({ gpassword })} 
+                            value={this.state.gpassword}
                         />
                     </Item>
 
@@ -145,19 +147,22 @@ export default class SuperAdmin extends React.Component {
                     <Item rounded style={styles.item}>
                         <Input placeholder='user name goes here'
                             style={styles.item}
-                            onChangeText={(username) => this.setState({ username })} value={this.state.username}
+                            onChangeText={(username) => this.setState({ username })} 
+                            value={this.state.username}
                         />
                     </Item>
                     <Item rounded style={styles.item}>
                         <Input placeholder='email'
                             style={styles.item}
-                            onChangeText={(email) => this.setState({ email })} value={this.state.email}
+                            onChangeText={(email) => this.setState({ email })} 
+                            value={this.state.email}
                         />
                     </Item>
                     <Item rounded style={styles.item}>
                         <Input placeholder='Enter password to protect the user'
                             style={styles.item}
-                            onChangeText={(password) => this.setState({ password })} value={this.state.password}
+                            onChangeText={(password) => this.setState({ password })} 
+                            value={this.state.password}
 
                         />
                     </Item>

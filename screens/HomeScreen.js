@@ -7,11 +7,11 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Title, Divider, List } from "react-native-paper";
+import { Header, Button, Icon, Left, Body, Right, } from 'native-base';
 import FormButton from "../components/FormButton";
 import colors from "../config/colors";
 import { AuthContext } from "../navigation/AuthProvider";
 import { firebase } from "../components/firebase";
-
 import Loading from "../components/Loading";
 import useStatusBar from "../utils/useStatusBar";
 
@@ -19,7 +19,10 @@ const HomeScreen = ({ navigation }) => {
   useStatusBar("dark-content");
   const [threads, setThreads] = useState([]);
   const [loading, setLoading] = useState(true);
-  // const { user, logout } = useContext(AuthContext);
+  const { logout } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
+  const currentUser = user.toJSON();
+  const Super = currentUser.email;
   useEffect(() => {
     const unsubscribe = firebase
       .firestore()
@@ -50,7 +53,28 @@ const HomeScreen = ({ navigation }) => {
   }
 
   return (
-    <View>
+    <View style={{}}>
+      <Header style={{ backgroundColor: 'red' }}>
+        <Left>
+          <Button transparent onPress={() => logout()}>
+            <Icon name='exit' />
+          </Button>
+        </Left>
+        <Body>
+          <Title style={{ color: 'white' }}>Home</Title>
+        </Body>
+        <Right>
+          {
+            Super == 'super@admin.com' ? (
+              <Button transparent onPress={() => navigation.navigate('SuperAdmin')}>
+                <Icon name='user-secret' type='FontAwesome5' />
+              </Button>
+            ) : (
+                <View></View>
+              )
+          }
+        </Right>
+      </Header>
       <FlatList
         data={threads}
         keyExtractor={(item) => item._id}

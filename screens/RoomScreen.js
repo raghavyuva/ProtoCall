@@ -198,46 +198,7 @@ const RoomScreen = ({ route }) => {
     });
   }
   const uploadAudio = async (uri) => {
-    return new Promise(async (res, rej) => {
-      const response = await fetch(uri);
-      const blob = await response.blob();
-      let upload = firebase.storage().ref(`Audios/${currentUser.uid}/${Date.now()}`).put(blob)
-      upload.on(
-        "state_changed",
-        snapshot => {
-          setAudioPicked(uri);
-        },
-        err => {
-          rej(err);
-        },
-        async () => {
-          const url = await upload.snapshot.ref.getDownloadURL();
-          res(url);
-          console.log(url);
-          setAudioPicked(null);
-          firebase.firestore().collection('THREADS').doc(thread._id).collection('MESSAGES').add({
-            Audio: url,
-            createdAt: new Date().getTime(),
-            user: {
-              _id: currentUser.uid,
-              email: currentUser.email,
-            }
-          })
-          await firebase
-            .firestore()
-            .collection("THREADS")
-            .doc(thread._id)
-            .set(
-              {
-                latestMessage: {
-                  Audio,
-                  createdAt: new Date().getTime(),
-                },
-              },
-              { merge: true }
-            );
-        })
-    });
+//function for audio uploading
   }
   const _pickAudio = async () => {
     //pick audio and upload function to pass an uri,
