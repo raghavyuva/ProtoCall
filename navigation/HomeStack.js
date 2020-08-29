@@ -8,6 +8,7 @@ import { AuthContext } from "./AuthProvider";
 import { IconButton } from "react-native-paper";
 import RoomScreen from "../screens/RoomScreen";
 import SuperAdmin from '../components/SuperAdmin';
+import Adduser from "../components/Addusertogroup";
 // const Stack = createStackNavigator();
 const ChatAppStack = createStackNavigator();
 const ModalStack = createStackNavigator();
@@ -69,6 +70,7 @@ const HomeStack = () => {
     <ModalStack.Navigator mode="modal" headerMode="none">
       <ModalStack.Screen name="ChatApp" component={ChatApp} />
       <ModalStack.Screen name="SuperAdmin" component={SuperAdmin} />
+      <ModalStack.Screen name="adduser" component={Adduser} />
     </ModalStack.Navigator>
   );
 };

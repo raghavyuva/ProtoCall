@@ -7,7 +7,8 @@ import {
   ActivityIndicator,
   ImagePickerIOS,
   TouchableOpacity,
-  Dimensions
+  Dimensions,
+  ImageBackground
 } from "react-native";
 import {
   GiftedChat,
@@ -45,6 +46,8 @@ const RoomScreen = ({ route }) => {
   const [visible, setVisible] = useState();
   const [videoPicked, setVideoPicked] = useState();
   const [AudioPicked, setAudioPicked] = useState();
+  const [admin,setAdmin] = useState(false);
+  const Super = currentUser.email;
   // const [messages, setMessages] = useState([
   //   {
   //     _id: 0,
@@ -204,6 +207,9 @@ const RoomScreen = ({ route }) => {
     //pick audio and upload function to pass an uri,
   }
   useEffect(() => {
+    if (Super == 'super@admin.com') {
+      setAdmin(true)
+    }
     const messagesListener = firebase
       .firestore()
       .collection("THREADS")
@@ -231,6 +237,7 @@ const RoomScreen = ({ route }) => {
         setMessages(messages);
       });
     return () => messagesListener();
+
   }, []);
   const ImagePickerComponent = async () => {
     const result = await ImagePicker.requestCameraRollPermissionsAsync();
@@ -272,20 +279,27 @@ const RoomScreen = ({ route }) => {
     return (
       <View style={{ flexDirection: 'row' }}>
         <TouchableOpacity onPress={_toggleBottomNavigationView}>
-          <MaterialIcons name="link" size={24} color="black" style={{ marginTop: 8 }} />
+        <Avatar rounded icon={{ name: 'link', color: 'white', type:'material-community-icons' }} size={40} iconStyle={{ color: 'black' }}
+                    overlayContainerStyle={{ backgroundColor: colors.primary }} containerStyle={{ marginLeft: 8, backgroundColor: 'red',marginBottom:2 }}>
+                  </Avatar>
         </TouchableOpacity>
+        <TouchableOpacity onPress={_pickImagefromCamera}>
+                  <Avatar rounded icon={{ name: 'camera', color: 'white', type: 'font-awesome' }} size={40} iconStyle={{ color: 'black' }}
+                    overlayContainerStyle={{ backgroundColor: colors.primary }} containerStyle={{ marginLeft: 8, backgroundColor: 'red',marginBottom:2 }}>
+                  </Avatar>
+                </TouchableOpacity>
         {imagePicked == null ? (
           <Text></Text>
         ) : (
             <View>
-              <Image source={{ uri: imagePicked }} style={{ width: 100, height: 80, }} />
+              <Image source={{ uri: imagePicked }} style={{ width: 200, height: 20, }} />
             </View>
           )
         }
         {videoPicked == null ? (
           <Text></Text>
         ) : (
-            <Video source={{ uri: videoPicked }} style={{ width: 100, height: 100 }} />
+            <Video source={{ uri: videoPicked }} style={{ width: 100, height: 50 }} />
           )}
         {AudioPicked == null ? (
           <Text></Text>
@@ -313,11 +327,7 @@ const RoomScreen = ({ route }) => {
                     overlayContainerStyle={{ backgroundColor: 'orange' }} containerStyle={{ marginLeft: 2, backgroundColor: 'red' }}>
                   </Avatar>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={_pickImagefromCamera}>
-                  <Avatar rounded icon={{ name: 'camera', color: 'black', type: 'font-awesome' }} size={60} iconStyle={{ color: 'black' }}
-                    overlayContainerStyle={{ backgroundColor: 'orange' }} containerStyle={{ marginLeft: 8, backgroundColor: 'red' }}>
-                  </Avatar>
-                </TouchableOpacity>
+                {/*
                 <TouchableOpacity >
                   <Avatar rounded icon={{ name: 'file', color: 'black', type: 'font-awesome' }} size={60} iconStyle={{ color: 'black' }}
                     overlayContainerStyle={{ backgroundColor: 'orange' }} containerStyle={{ marginLeft: 8, backgroundColor: 'red' }}>
@@ -328,6 +338,7 @@ const RoomScreen = ({ route }) => {
                     overlayContainerStyle={{ backgroundColor: 'orange' }} containerStyle={{ marginLeft: 8, backgroundColor: 'red' }}>
                   </Avatar>
                 </TouchableOpacity>
+                */}
                 <TouchableOpacity onPress={_pickVideo}>
                   <Avatar rounded icon={{ name: 'video-camera', color: 'black', type: 'font-awesome' }} size={60} iconStyle={{ color: 'black' }}
                     overlayContainerStyle={{ backgroundColor: 'orange' }} containerStyle={{ marginLeft: 8, backgroundColor: 'red' }}>
@@ -374,7 +385,9 @@ const RoomScreen = ({ route }) => {
     return (
       <Send {...props}>
         <View style={styles.sendingContainer}>
-          <IconButton icon="send-circle" size={36} color={colors.primary} />
+        <Avatar rounded icon={{ name: 'send', color: 'white', type: 'entyp' }} size={40} iconStyle={{ color: 'black' }}
+                    overlayContainerStyle={{ backgroundColor: colors.primary }} containerStyle={{ marginRight: 8, backgroundColor: 'red',marginBottom:2 }}>
+                  </Avatar>
         </View>
       </Send>
     );
@@ -384,9 +397,10 @@ const RoomScreen = ({ route }) => {
     return (
       <View style={styles.bottomComponentContainer}>
         <IconButton
-          icon="chervron-double-down"
+          icon="arrow-down"
           size={36}
-          color={colors.secondary}
+          color='black'
+          style={{backgroundColor:'red'}}
         />
       </View>
     );
@@ -405,8 +419,8 @@ const RoomScreen = ({ route }) => {
   const renderLoading = () => {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size={"large"} color={colors.primary} />
-      </View>
+      <ActivityIndicator size={100} color={colors.primary} />
+    </View>
     );
   };
 
@@ -424,13 +438,14 @@ const RoomScreen = ({ route }) => {
       scrollToBottomComponent={scrollToBottomComponent}
       renderLoading={renderLoading}
       renderSystemMessage={renderSystemMessage}
-      placeholder="Start Chatting..."
+      placeholder="Type your message..."
       renderMessageVideo={renderMessageVideo}
       showUserAvatar
       alwaysShowSend
       scrollToBottom
       textInputProps
       renderChatEmpty={renderLoading}
+      renderUsernameOnMessage={admin}
     />
   );
 };

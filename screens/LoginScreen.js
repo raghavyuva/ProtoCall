@@ -59,15 +59,16 @@ const LoginScreen = ({ navigation }) => {
             <Input placeholder="Password" style={styles.input}
               value={password}
               onChangeText={(userPassword) => setPassword(userPassword)}
+              secureTextEntry
             />
 
             <TouchableOpacity onPress={()=>setHidden(!hidden)}>
 
               {hidden == false ? (
-                <Icon active name='eye' style={styles.icon} type='AntDesign' />
-              ) : (
-                  <Icon active name='eye-off' style={styles.icon} type='Feather' />
+                                  <Icon active name='eye-off' style={styles.icon} type='Feather' />
 
+              ) : (
+                <Icon active name='eye' style={styles.icon} type='AntDesign' />
                 )
               }
 

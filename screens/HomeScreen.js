@@ -6,8 +6,8 @@ import {
   FlatList,
   TouchableOpacity,
 } from "react-native";
-import { Title, Divider, List } from "react-native-paper";
-import { Header, Button, Icon, Left, Body, Right, } from 'native-base';
+import { Title, Divider, } from "react-native-paper";
+import { Header, Button, Icon, Left, Body, Right, Container, Card } from 'native-base';
 import FormButton from "../components/FormButton";
 import colors from "../config/colors";
 import { AuthContext } from "../navigation/AuthProvider";
@@ -23,13 +23,16 @@ const HomeScreen = ({ navigation }) => {
   const { user } = useContext(AuthContext);
   const currentUser = user.toJSON();
   const Super = currentUser.email;
+  const FlatListItemSeparator = () => <View style={styles.line} />;
+  const colors = ['#1b262c', '#0f4c75', '#3282b8', '#6b028d', "#221f3b", '#c42b71']
+
   useEffect(() => {
     const unsubscribe = firebase
       .firestore()
       .collection("THREADS")
-      // .orderBy("latestMessage.createdAt", "desc")
       .onSnapshot((querySnapshot) => {
         const threads = querySnapshot.docs.map((documentSnapshot) => {
+
           return {
             _id: documentSnapshot.id,
             name: "",
@@ -53,7 +56,7 @@ const HomeScreen = ({ navigation }) => {
   }
 
   return (
-    <View style={{}}>
+    <Container style={{ backgroundColor: 'black' }}>
       <Header style={{ backgroundColor: 'red' }}>
         <Left>
           <Button transparent onPress={() => logout()}>
@@ -78,23 +81,20 @@ const HomeScreen = ({ navigation }) => {
       <FlatList
         data={threads}
         keyExtractor={(item) => item._id}
-        ItemSeparatorComponent={() => <Divider />}
-        renderItem={({ item }) => (
+        ItemSeparatorComponent={FlatListItemSeparator}
+        renderItem={({ item, index }) => (
           <TouchableOpacity
             onPress={() => navigation.navigate("Room", { thread: item })}
           >
-            <List.Item
-              title={item.name}
-              description={item.latestMessage.text}
-              titleStyle={styles.listTitle}
-              titleNumberOfLines={1}
-              descriptionStyle={styles.listDescription}
-              descriptionNumberOfLines={1}
-            />
+            <Card style={{ backgroundColor: colors[index % colors.length] }}
+            >
+              <Text style={styles.listTitle} numberOfLines={1}> {item.name} </Text>
+              <Text note style={styles.listDescription} numberOfLines={3}> {item.latestMessage.text} </Text>
+            </Card>
           </TouchableOpacity>
         )}
       />
-    </View>
+    </Container>
   );
 };
 
@@ -107,8 +107,16 @@ const styles = StyleSheet.create({
   },
   listTitle: {
     fontSize: 22,
+    color: 'white'
   },
   listDescription: {
     fontSize: 16,
+    color: 'white'
+  },
+  line: {
+    height: 0.5,
+    width: "100%",
+    marginTop: 10,
+    backgroundColor: "rgba(255,255,255,0.5)"
   },
 });

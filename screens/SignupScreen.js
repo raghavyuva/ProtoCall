@@ -13,7 +13,7 @@ const SignupScreen = ({ navigation }) => {
   const [password, setPassword] = useState("");
   return (
     <View style={styles.container}>
-      <Title style={styles.titleText}> Welcome to Chat App</Title>
+      <Title style={styles.titleText}>Create Your Account</Title>
       <FormInput
         labelName="Email"
         value={email}
