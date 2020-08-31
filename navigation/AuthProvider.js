@@ -1,13 +1,12 @@
 import React, { createContext, useState } from "react";
-import auth from "@react-native-firebase/auth";
-
-import { firebase } from "../components/firebase";
+import firebase from 'firebase';
 import Loading from '../components/Loading';
 export const AuthContext = createContext({});
-
+import auth from 'firebase/auth';
+import firestore from 'firebase/firestore';
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading,setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   return (
     <AuthContext.Provider
       value={{
@@ -18,14 +17,18 @@ export const AuthProvider = ({ children }) => {
             await firebase.auth().signInWithEmailAndPassword(email, password);
             setLoading(false);
           } catch (e) {
-           alert(e)
+            alert(e)
           }
         },
-        register: async (email, password) => {
+        register: async (email, password,name) => {
           try {
             await firebase
               .auth()
-              .createUserWithEmailAndPassword(email, password);
+              .createUserWithEmailAndPassword(email, password)
+             firebase.firestore().collection('users').add({
+               username:name,
+               email:email,
+             })
           } catch (e) {
             alert(e)
           }

@@ -46,29 +46,8 @@ const RoomScreen = ({ route }) => {
   const [visible, setVisible] = useState();
   const [videoPicked, setVideoPicked] = useState();
   const [AudioPicked, setAudioPicked] = useState();
-  const [admin,setAdmin] = useState(false);
+  const [admin, setAdmin] = useState(false);
   const Super = currentUser.email;
-  // const [messages, setMessages] = useState([
-  //   {
-  //     _id: 0,
-  //     text: "New Room Created",
-  //     createdAt: new Date().getTime(),
-  //     system: true,
-  //   },
-  //   {
-  //     _id: 1,
-  //     text: "Hello Guys",
-  //     createdAt: new Date().getTime(),
-  //     user: {
-  //       _id: 2,
-  //       name: "Test User",
-  //     },
-  //   },
-  // ]);
-
-  // const handleSend = (newMessage = []) => {
-  //   setMessages(GiftedChat.append(messages, newMessage));
-  // };
   const renderMessageVideo = (props) => {
     const { currentMessage } = props;
     return (
@@ -200,12 +179,6 @@ const RoomScreen = ({ route }) => {
         })
     });
   }
-  const uploadAudio = async (uri) => {
-//function for audio uploading
-  }
-  const _pickAudio = async () => {
-    //pick audio and upload function to pass an uri,
-  }
   useEffect(() => {
     if (Super == 'super@admin.com') {
       setAdmin(true)
@@ -279,15 +252,15 @@ const RoomScreen = ({ route }) => {
     return (
       <View style={{ flexDirection: 'row' }}>
         <TouchableOpacity onPress={_toggleBottomNavigationView}>
-        <Avatar rounded icon={{ name: 'link', color: 'white', type:'material-community-icons' }} size={40} iconStyle={{ color: 'black' }}
-                    overlayContainerStyle={{ backgroundColor: colors.primary }} containerStyle={{ marginLeft: 8, backgroundColor: 'red',marginBottom:2 }}>
-                  </Avatar>
+          <Avatar rounded icon={{ name: 'link', color: 'white', type: 'material-community-icons' }} size={40} iconStyle={{ color: 'black' }}
+            overlayContainerStyle={{ backgroundColor: 'black' }} containerStyle={{ marginLeft: 8, backgroundColor: 'red', marginBottom: 2 }}>
+          </Avatar>
         </TouchableOpacity>
         <TouchableOpacity onPress={_pickImagefromCamera}>
-                  <Avatar rounded icon={{ name: 'camera', color: 'white', type: 'font-awesome' }} size={40} iconStyle={{ color: 'black' }}
-                    overlayContainerStyle={{ backgroundColor: colors.primary }} containerStyle={{ marginLeft: 8, backgroundColor: 'red',marginBottom:2 }}>
-                  </Avatar>
-                </TouchableOpacity>
+          <Avatar rounded icon={{ name: 'camera', color: 'white', type: 'font-awesome' }} size={40} iconStyle={{ color: 'black' }}
+            overlayContainerStyle={{ backgroundColor: 'black' }} containerStyle={{ marginLeft: 8, backgroundColor: 'red', marginBottom: 2 }}>
+          </Avatar>
+        </TouchableOpacity>
         {imagePicked == null ? (
           <Text></Text>
         ) : (
@@ -300,11 +273,6 @@ const RoomScreen = ({ route }) => {
           <Text></Text>
         ) : (
             <Video source={{ uri: videoPicked }} style={{ width: 100, height: 50 }} />
-          )}
-        {AudioPicked == null ? (
-          <Text></Text>
-        ) : (
-            <Audio source={{ uri: AudioPicked }} style={{ width: 100, height: 100 }} />
           )}
         <BottomSheet
           visible={visible}
@@ -327,18 +295,6 @@ const RoomScreen = ({ route }) => {
                     overlayContainerStyle={{ backgroundColor: 'orange' }} containerStyle={{ marginLeft: 2, backgroundColor: 'red' }}>
                   </Avatar>
                 </TouchableOpacity>
-                {/*
-                <TouchableOpacity >
-                  <Avatar rounded icon={{ name: 'file', color: 'black', type: 'font-awesome' }} size={60} iconStyle={{ color: 'black' }}
-                    overlayContainerStyle={{ backgroundColor: 'orange' }} containerStyle={{ marginLeft: 8, backgroundColor: 'red' }}>
-                  </Avatar>
-                </TouchableOpacity>
-                <TouchableOpacity >
-                  <Avatar rounded icon={{ name: 'music', color: 'black', type: 'font-awesome' }} size={60} iconStyle={{ color: 'black' }}
-                    overlayContainerStyle={{ backgroundColor: 'orange' }} containerStyle={{ marginLeft: 8, backgroundColor: 'red' }}>
-                  </Avatar>
-                </TouchableOpacity>
-                */}
                 <TouchableOpacity onPress={_pickVideo}>
                   <Avatar rounded icon={{ name: 'video-camera', color: 'black', type: 'font-awesome' }} size={60} iconStyle={{ color: 'black' }}
                     overlayContainerStyle={{ backgroundColor: 'orange' }} containerStyle={{ marginLeft: 8, backgroundColor: 'red' }}>
@@ -370,13 +326,19 @@ const RoomScreen = ({ route }) => {
         {...props}
         wrapperStyle={{
           right: {
-            backgroundColor: colors.secondary,
+            backgroundColor: '#0E043B',
           },
+          left: {
+            backgroundColor: 'black',
+          }
         }}
         textStyle={{
           right: {
             color: colors.white,
           },
+          left: {
+            color: 'white'
+          }
         }}
       />
     );
@@ -385,9 +347,9 @@ const RoomScreen = ({ route }) => {
     return (
       <Send {...props}>
         <View style={styles.sendingContainer}>
-        <Avatar rounded icon={{ name: 'send', color: 'white', type: 'entyp' }} size={40} iconStyle={{ color: 'black' }}
-                    overlayContainerStyle={{ backgroundColor: colors.primary }} containerStyle={{ marginRight: 8, backgroundColor: 'red',marginBottom:2 }}>
-                  </Avatar>
+          <Avatar rounded icon={{ name: 'send', color: 'white', type: 'entyp' }} size={40} iconStyle={{ color: 'black' }}
+            overlayContainerStyle={{ backgroundColor: 'black' }} containerStyle={{ marginRight: 8, backgroundColor: 'black', marginBottom: 2 }}>
+          </Avatar>
         </View>
       </Send>
     );
@@ -400,7 +362,7 @@ const RoomScreen = ({ route }) => {
           icon="arrow-down"
           size={36}
           color='black'
-          style={{backgroundColor:'red'}}
+          style={{ backgroundColor: 'red' }}
         />
       </View>
     );
@@ -419,8 +381,8 @@ const RoomScreen = ({ route }) => {
   const renderLoading = () => {
     return (
       <View style={styles.loadingContainer}>
-      <ActivityIndicator size={100} color={colors.primary} />
-    </View>
+        <ActivityIndicator size={100} color={colors.primary} />
+      </View>
     );
   };
 
@@ -428,9 +390,7 @@ const RoomScreen = ({ route }) => {
   return (
     <GiftedChat
       messages={messages}
-      //onSend={(newMessage) => handleSend(newMessage)}
       onSend={handleSend}
-      //user={{ _id: 1, name: "User Test" }}
       user={{ _id: currentUser.uid }}
       renderBubble={renderBubble}
       renderSend={renderSend}

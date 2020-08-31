@@ -32,15 +32,15 @@ export default class Adduser extends React.Component {
     constructor(props) {
         super(props);
     }
-    Groupname = this.props.route.params.name;
+    Groupname = this.props.route.params.name
     state = {
         list: [],
         filteredData: [],
         searchText: "",
         selectedItem: null,
         loading: true,
-        currentIndex:null,
-        arrayofusers:[],
+        currentIndex: null,
+        arrayofusers: [],
     }
     search = (searchText, ) => {
         this.setState({ searchText: searchText });
@@ -52,16 +52,13 @@ export default class Adduser extends React.Component {
 
         this.setState({ filteredData: filteredData });
     };
-    onPressHandler(id,index) {
+    onPressHandler(id, index) {
         let renderData = [...this.state.list];
         for (let data of renderData) {
             if (data.id == id) {
+                this.setState({ currentIndex: id })
                 data.selected = (data.selected == null) ? true : !data.selected;
                 break;
-            }
-            if (data.selected==true) {
-             this.setState({currentIndex:index})
-             console.log(this.state.currentIndex);
             }
         }
         this.setState({ renderData });
@@ -71,7 +68,6 @@ export default class Adduser extends React.Component {
             .collection('users')
             .onSnapshot(querySnapshot => {
                 const users = [];
-
                 querySnapshot.forEach(documentSnapshot => {
                     users.push({
                         ...documentSnapshot.data(),
@@ -95,6 +91,7 @@ export default class Adduser extends React.Component {
                     createdAt: new Date().getTime(),
                 },
             })
+
             .then((docRef) => {
                 docRef.collection("MESSAGES").add({
                     text: `You have joined the Group ${this.Groupname}`,
@@ -150,7 +147,7 @@ export default class Adduser extends React.Component {
                     onScrollAnimationEnd
                     renderItem={({ item, index }) => (
                         <TouchableOpacity
-                            onPress={() => this.onPressHandler(item.id,item.index)}
+                            onPress={() => this.onPressHandler(item.id, item.index)}
                         >
                             <Card
                                 style={item.selected == true

@@ -9,7 +9,7 @@ import { IconButton } from "react-native-paper";
 import RoomScreen from "../screens/RoomScreen";
 import SuperAdmin from '../components/SuperAdmin';
 import Adduser from "../components/Addusertogroup";
-// const Stack = createStackNavigator();
+import Protected from "../screens/protected";
 const ChatAppStack = createStackNavigator();
 const ModalStack = createStackNavigator();
 
@@ -33,26 +33,7 @@ const ChatApp = () => {
     >
       <ChatAppStack.Screen
         name="Home"
-        component={HomeScreen}
-        options={({ navigation }) => ({
-          headerRight: () => (
-            <IconButton
-            icon="message-plus"
-            size={28}
-            color={colors.white}
-            onPress={() => navigation.navigate("SuperAdmin")}
-         />
-          ),
-          headerLeft: () => (
-            <IconButton
-              icon="logout-variant"
-              size={28}
-              color={colors.white}
-              onPress={() => logout()}
-            />
-          ),
-        })}
-      />
+        component={HomeScreen} />
 
       <ChatAppStack.Screen
         name="Room"
@@ -71,22 +52,9 @@ const HomeStack = () => {
       <ModalStack.Screen name="ChatApp" component={ChatApp} />
       <ModalStack.Screen name="SuperAdmin" component={SuperAdmin} />
       <ModalStack.Screen name="adduser" component={Adduser} />
+      <ModalStack.Screen name="protected" component={Protected} />
     </ModalStack.Navigator>
   );
 };
 
 export default HomeStack;
-
-// const HomeStack = () => {
-//   return (
-//     <ModalStack.Navigator
-//       screenOptions={{
-//         headerStyle: { backgroundColor: colors.secondary },
-//         headerTintColor: colors.white,
-//         headerTitleStyle: { fontSize: 22 },
-//       }}
-//     >
-//       <Stack.Screen name="Home" component={HomeScreen} />
-//     </ModalStack.Navigator>
-//   );
-// };

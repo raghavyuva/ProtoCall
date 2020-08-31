@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { StyleSheet,TouchableOpacity} from "react-native";
 import { Container, Button, Icon, Title, Item, Input, Form,Text, View ,} from 'native-base';
 import FormButton from "../components/FormButton";
@@ -6,11 +6,14 @@ import FormInput from "../components/FormInput";
 import colors from "../config/colors";
 console.disableYellowBox
 import { AuthContext } from "../navigation/AuthProvider";
+import * as Font from 'expo-font';
+import { EvilIcons, AntDesign, FontAwesome5, Entypo, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 const LoginScreen = ({ navigation }) => {
   const { login } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [hidden, setHidden] = useState('');
+  const [loading,setLoading] = useState(true);
   const onsignin = () =>{
     if (!email || !password) {
       alert("input fields cannot be as empty as like that")
@@ -18,6 +21,21 @@ const LoginScreen = ({ navigation }) => {
       login(email,password)
     }
   }
+  useEffect(() => {
+    async function load() {
+        await Font.loadAsync({
+            'Roboto': require('native-base/Fonts/Roboto.ttf'),
+            'Roboto_medium': require('native-base/Fonts/Roboto_medium.ttf'),
+            ...Ionicons.font,
+        })
+    }
+    setLoading(false);
+}, []);
+if (loading) {
+  return(
+    <Container></Container>
+  )
+}
   return (
     <Container style={styles.screen}>
 
@@ -59,9 +77,8 @@ const LoginScreen = ({ navigation }) => {
             <Input placeholder="Password" style={styles.input}
               value={password}
               onChangeText={(userPassword) => setPassword(userPassword)}
-              secureTextEntry
+              secureTextEntry={hidden}
             />
-
             <TouchableOpacity onPress={()=>setHidden(!hidden)}>
 
               {hidden == false ? (

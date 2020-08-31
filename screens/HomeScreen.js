@@ -25,7 +25,6 @@ const HomeScreen = ({ navigation }) => {
   const Super = currentUser.email;
   const FlatListItemSeparator = () => <View style={styles.line} />;
   const colors = ['#1b262c', '#0f4c75', '#3282b8', '#6b028d', "#221f3b", '#c42b71']
-
   useEffect(() => {
     const unsubscribe = firebase
       .firestore()
@@ -48,6 +47,7 @@ const HomeScreen = ({ navigation }) => {
           setLoading(false);
         }
       });
+
     return () => unsubscribe();
   }, []);
 
@@ -84,12 +84,20 @@ const HomeScreen = ({ navigation }) => {
         ItemSeparatorComponent={FlatListItemSeparator}
         renderItem={({ item, index }) => (
           <TouchableOpacity
-            onPress={() => navigation.navigate("Room", { thread: item })}
+            onPress={() => {
+              if (Super == 'super@admin.com') {
+                navigation.navigate("Room", { thread: item })
+              } else {
+                navigation.navigate("protected", { thread: item })
+              }
+
+            }
+            }
           >
             <Card style={{ backgroundColor: colors[index % colors.length] }}
             >
               <Text style={styles.listTitle} numberOfLines={1}> {item.name} </Text>
-              <Text note style={styles.listDescription} numberOfLines={3}> {item.latestMessage.text} </Text>
+              {/*<Text note style={styles.listDescription} numberOfLines={3}> {item.latestMessage.text} </Text>*/}
             </Card>
           </TouchableOpacity>
         )}

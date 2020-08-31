@@ -14,13 +14,14 @@ export default class SuperAdmin extends React.Component {
     state = {
         loading: true,
         groupname: "",
-        gpassword: "",
         username: "",
         password: "",
         email: "",
         data: "",
         deletinggroup: "",
-        deletinguser: ""
+        deletinguser: "",
+        partuser: '',
+        grouppass: '',
     }
     async componentDidMount() {
         await Font.loadAsync({
@@ -38,22 +39,49 @@ export default class SuperAdmin extends React.Component {
         })
     }
     deletepartgroup = () => {
-        const dbRef = firebase.firestore().collection('THREADS')
-        dbRef.delete().then((res) => {
-            alert(res);
-        })
+
     }
     deletepartuser = () => {
-        const ref = firebase.firestore().collection('users').doc(users.this.state.deletinguser)
-        ref.delete().then((res) => {
+        let options = []
+        const dbRef = firebase.firestore().collection('users').get().then((querySnapshot) => {
+            querySnapshot.forEach(documentSnapshot => {
+                options.push({
+                    ...documentSnapshot.data(),
+                    key: documentSnapshot.id,
+                });
+                this.setState({ arrayofusers: options });
+                console.log(this.state.arrayofusers);
+                this.setState({ partuser: this.state.arrayofusers.email[this.state.deletinguser] })
+            })
+        })
+        const refer = firebase.firestore().collection('users').doc(this.state.partuser).delete().then((res) => {
             alert(res);
         })
     }
     GroupHandler = () => {
-        if (!this.state.groupname) {
+        if (!this.state.groupname || !this.state.grouppass) {
             alert('enter group name to navigate to next page')
         } else {
-            this.props.navigation.navigate('adduser', { name: this.state.groupname })
+            //  this.props.navigation.navigate('adduser', { name: this.state.groupname})
+            firebase
+                .firestore()
+                .collection("THREADS")
+                .add({
+                    name: this.state.groupname,
+                    password: this.state.grouppass,
+                    latestMessage: {
+                        text: `Admin has Created the Group  ${this.state.groupname}`,
+                        createdAt: new Date().getTime(),
+                    },
+                })
+                .then((docRef) => {
+                    docRef.collection("MESSAGES").add({
+                        text: `You have joined the Group ${this.state.groupname}`,
+                        createdAt: new Date().getTime(),
+                        system: true,
+                    });
+                    this.props.navigation.navigate("Home");
+                });
         }
     }
     render() {
@@ -77,12 +105,19 @@ export default class SuperAdmin extends React.Component {
                                 value={this.state.groupname}
                             />
                         </Item>
+                        <Item rounded style={styles.item}>
+                            <Input placeholder='Group password to protect'
+                                onChangeText={(grouppass) => this.setState({ grouppass })}
+                                value={this.state.grouppass}
+                            />
+                        </Item>
                     </View>
                     <Button style={styles.button}
                         onPress={this.GroupHandler}
                     >
-                        <Text>Next step</Text>
+                        <Text>Create Group</Text>
                     </Button>
+                    {/* 
                     <View style={{ margin: 25, }}>
 
                         <Text style={styles.title}>Delete particular Group</Text>
@@ -93,17 +128,6 @@ export default class SuperAdmin extends React.Component {
                             />
                         </Item>
                         <Button style={styles.adduser} onPress={this.deletepartgroup}>
-                            <Text>Delete</Text>
-                        </Button>
-                    </View>
-                    <View style={{ margin: 25, }}>
-
-                        <Text style={styles.title}>Delete All Groups</Text>
-
-                        <Text>Danger,</Text>
-                        <Text note>by doing this action all the groups including their messages that are present in the database will be deleted</Text>
-
-                        <Button style={styles.adduser} >
                             <Text>Delete</Text>
                         </Button>
                     </View>
@@ -122,6 +146,7 @@ export default class SuperAdmin extends React.Component {
                             <Text>Delete</Text>
                         </Button>
                     </View>
+                    */}
                 </ScrollView>
             </Container>
         );
