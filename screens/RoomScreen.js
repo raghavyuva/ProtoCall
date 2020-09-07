@@ -215,7 +215,7 @@ const RoomScreen = ({ route }) => {
   const ImagePickerComponent = async () => {
     const result = await ImagePicker.requestCameraRollPermissionsAsync();
     if (!result.granted) {
-      alert("You need to enable camera");
+      alert("You need to enable camera permission ");
     }
   };
   useEffect(() => {

@@ -14,24 +14,35 @@ import { AuthContext } from "../navigation/AuthProvider";
 import { firebase } from "../components/firebase";
 import Loading from "../components/Loading";
 import useStatusBar from "../utils/useStatusBar";
+import { firestore } from "firebase";
 
-const HomeScreen = ({ navigation }) => {
+const HomeScreen = ({ navigation,}) => {
   useStatusBar("dark-content");
   const [threads, setThreads] = useState([]);
   const [loading, setLoading] = useState(true);
   const { logout } = useContext(AuthContext);
+  const [list,setList] = useState([]);
+  const [render,setRender] =useState([]);
   const { user } = useContext(AuthContext);
   const currentUser = user.toJSON();
   const Super = currentUser.email;
   const FlatListItemSeparator = () => <View style={styles.line} />;
   const colors = ['#1b262c', '#0f4c75', '#3282b8', '#6b028d', "#221f3b", '#c42b71']
   useEffect(() => {
-    const unsubscribe = firebase
+    firebase.firestore().collection('THREADS').doc('CYBtr1pUZMEV3Oi2I9CW').collection('Users').onSnapshot((querySnapshot)=>{
+      const threa = querySnapshot.docs.map((documentSnapshot) => {
+        let data = {...documentSnapshot.data()}
+       
+        setList(data.users.selectedItems);
+        console.log(list);
+      })
+    })
+
+        const unsubscribe = firebase
       .firestore()
       .collection("THREADS")
       .onSnapshot((querySnapshot) => {
         const threads = querySnapshot.docs.map((documentSnapshot) => {
-
           return {
             _id: documentSnapshot.id,
             name: "",
@@ -41,13 +52,17 @@ const HomeScreen = ({ navigation }) => {
             ...documentSnapshot.data(),
           };
         });
-        setThreads(threads);
-
+    
+        if (list.includes == currentUser.email) {
+          setThreads(threads);
+        }
+        else{
+        
+        }
         if (loading) {
           setLoading(false);
         }
       });
-
     return () => unsubscribe();
   }, []);
 
@@ -90,14 +105,13 @@ const HomeScreen = ({ navigation }) => {
               } else {
                 navigation.navigate("protected", { thread: item })
               }
-
             }
             }
           >
             <Card style={{ backgroundColor: colors[index % colors.length] }}
             >
               <Text style={styles.listTitle} numberOfLines={1}> {item.name} </Text>
-              {/*<Text note style={styles.listDescription} numberOfLines={3}> {item.latestMessage.text} </Text>*/}
+              <Text note style={styles.listDescription} numberOfLines={3}> {item.latestMessage.text} </Text>
             </Card>
           </TouchableOpacity>
         )}

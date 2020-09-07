@@ -59,11 +59,12 @@ export default class SuperAdmin extends React.Component {
         })
     }
     GroupHandler = () => {
-        if (!this.state.groupname || !this.state.grouppass) {
+        if (!this.state.groupname) {
             alert('enter group name to navigate to next page')
         } else {
-            //  this.props.navigation.navigate('adduser', { name: this.state.groupname})
-            firebase
+            this.props.navigation.navigate('adduser', { name: this.state.groupname})
+          /*  
+          firebase
                 .firestore()
                 .collection("THREADS")
                 .add({
@@ -82,6 +83,8 @@ export default class SuperAdmin extends React.Component {
                     });
                     this.props.navigation.navigate("Home");
                 });
+
+                */
         }
     }
     render() {
@@ -103,12 +106,6 @@ export default class SuperAdmin extends React.Component {
                             <Input placeholder='Group Name Goes here'
                                 onChangeText={(groupname) => this.setState({ groupname })}
                                 value={this.state.groupname}
-                            />
-                        </Item>
-                        <Item rounded style={styles.item}>
-                            <Input placeholder='Group password to protect'
-                                onChangeText={(grouppass) => this.setState({ grouppass })}
-                                value={this.state.grouppass}
                             />
                         </Item>
                     </View>

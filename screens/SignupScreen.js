@@ -68,18 +68,10 @@ if (loading) {
                     </Item>
                     <Item style={{ marginTop: 50 }}>
                         <Icon active name='user-secret' style={{ color: 'red' }} type='FontAwesome' />
-                        <Input placeholder="Password" style={{ color: "white" }} secureTextEntry={hidden}
+                        <Input placeholder="Password" style={{ color: "white" }}
                             onChangeText={(userPassword) => setPassword(userPassword)} value={password}
                         />
-                        <TouchableOpacity onPress={()=>setHidden(!hidden)}>
-                            {hidden == false ? (
-                                <Icon active name='eye' style={{ color: 'red' }} type='AntDesign' />
-                            ) : (
-                                    <Icon active name='eye-off' style={{ color: 'red' }} type='Feather' />
-
-                                )
-                            }
-                        </TouchableOpacity>
+                  
 
                     </Item>
 

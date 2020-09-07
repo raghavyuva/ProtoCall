@@ -77,19 +77,8 @@ if (loading) {
             <Input placeholder="Password" style={styles.input}
               value={password}
               onChangeText={(userPassword) => setPassword(userPassword)}
-              secureTextEntry={hidden}
+             
             />
-            <TouchableOpacity onPress={()=>setHidden(!hidden)}>
-
-              {hidden == false ? (
-                                  <Icon active name='eye-off' style={styles.icon} type='Feather' />
-
-              ) : (
-                <Icon active name='eye' style={styles.icon} type='AntDesign' />
-                )
-              }
-
-            </TouchableOpacity>
 
           </Item>
 
