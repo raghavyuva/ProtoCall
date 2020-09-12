@@ -1,11 +1,17 @@
 import React, { Component, useState, useContext, } from 'react';
-import { Image, StyleSheet, SafeAreaView, FlatList, Dimensions, Share, ScrollView } from 'react-native';
+import { Image, StyleSheet, SafeAreaView, FlatList, Dimensions, Share, ScrollView,TouchableOpacity } from 'react-native';
 import { Container, Header, Content, Card, CardItem, Thumbnail, Text, Button, Icon, Left, Body, Drawer, View, ListItem, Right, Radio, List, Title, ActionSheet, Form, Picker, Item, Input, Label } from 'native-base';
 import * as Font from 'expo-font';
 const { width: screenWidth } = Dimensions.get('window');
+import { Avatar as Avatarr, Tooltip, Paragraph, Caption } from 'react-native-elements';
 import { Ionicons, AntDesign } from '@expo/vector-icons';
 import * as firebase from 'firebase';
-import { min } from 'react-native-reanimated';
+import * as ImagePicker from 'expo-image-picker';
+import Constants from 'expo-constants';
+import * as Permissions from 'expo-permissions';
+import { BottomSheet } from 'react-native-btr';
+import { Avatar } from 'react-native-elements';
+import { EvilIcons, FontAwesome5, Entypo, MaterialCommunityIcons, } from '@expo/vector-icons';
 let options = []
 export default class SuperAdmin extends React.Component {
     constructor(props) {
@@ -14,14 +20,64 @@ export default class SuperAdmin extends React.Component {
     state = {
         loading: true,
         groupname: "",
-        username: "",
         password: "",
-        email: "",
-        data: "",
-        deletinggroup: "",
-        deletinguser: "",
-        partuser: '',
-        grouppass: '',
+        searchText: "",
+        isSelected: false,
+        search_bar_enabled: false,
+        loading: true,
+        filteredData: [],
+        passparam: [],
+        avatar: null,
+    }
+    getPermissionAsync = async () => {
+        if (Constants.platform.android) {
+            const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+            if (status !== 'granted') {
+                alert('Sorry, we need camera roll permissions to make this work!');
+            }
+        }
+    };
+    componentDidMount() {
+        this.getPermissionAsync();
+    }
+    _toggleBottomNavigationView = () => {
+        //Toggling the visibility state of the bottom sheet
+        this.setState({ visible: !this.state.visible });
+    };
+    _pickImagefromCamera = async () => {
+
+        try {
+            let result = await ImagePicker.launchCameraAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.All,
+                allowsEditing: true,
+                aspect: [4, 3],
+                quality: 1,
+            });
+            if (!result.cancelled) {
+                this.setState({ avatar: result.uri });
+            }
+
+            console.log(result);
+        } catch (E) {
+            console.log(E);
+        }
+    };
+    _pickImagefromGallery = async () => {
+        try {
+            let result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.All,
+                allowsEditing: true,
+                aspect: [4, 3],
+                quality: 1,
+            });
+            if (!result.cancelled) {
+                this.setState({ avatar: result.uri });
+            }
+
+            console.log(result);
+        } catch (E) {
+            console.log(E);
+        }
     }
     async componentDidMount() {
         await Font.loadAsync({
@@ -30,61 +86,14 @@ export default class SuperAdmin extends React.Component {
             ...Ionicons.font,
         })
         this.setState({ loading: false })
-        firebase.firestore().collection('THREADS').get().then((querySnapshot) => {
-            querySnapshot.forEach(documentSnapshot => {
-                let groupnames = documentSnapshot.data();
-                const names = groupnames.name
-                options = [names]
-            });
-        })
-    }
-    deletepartgroup = () => {
-
-    }
-    deletepartuser = () => {
-        let options = []
-        const dbRef = firebase.firestore().collection('users').get().then((querySnapshot) => {
-            querySnapshot.forEach(documentSnapshot => {
-                options.push({
-                    ...documentSnapshot.data(),
-                    key: documentSnapshot.id,
-                });
-                this.setState({ arrayofusers: options });
-                console.log(this.state.arrayofusers);
-                this.setState({ partuser: this.state.arrayofusers.email[this.state.deletinguser] })
-            })
-        })
-        const refer = firebase.firestore().collection('users').doc(this.state.partuser).delete().then((res) => {
-            alert(res);
-        })
     }
     GroupHandler = () => {
         if (!this.state.groupname) {
             alert('enter group name to navigate to next page')
         } else {
-            this.props.navigation.navigate('adduser', { name: this.state.groupname})
-          /*  
-          firebase
-                .firestore()
-                .collection("THREADS")
-                .add({
-                    name: this.state.groupname,
-                    password: this.state.grouppass,
-                    latestMessage: {
-                        text: `Admin has Created the Group  ${this.state.groupname}`,
-                        createdAt: new Date().getTime(),
-                    },
-                })
-                .then((docRef) => {
-                    docRef.collection("MESSAGES").add({
-                        text: `You have joined the Group ${this.state.groupname}`,
-                        createdAt: new Date().getTime(),
-                        system: true,
-                    });
-                    this.props.navigation.navigate("Home");
-                });
-
-                */
+            this.state.passparam.push({ groupname: this.state.groupname , avatar: this.state.avatar,grouppassword: this.state.password })
+            this.props.navigation.navigate('adduser', { data: this.state.passparam});
+            this.setState({groupname:'',avatar:"",password:""});
         }
     }
     render() {
@@ -94,57 +103,89 @@ export default class SuperAdmin extends React.Component {
             );
         }
         return (
-            <Container>
+            <Container style={{backgroundColor:'black'}}>
 
-                <Header style={styles.header}>
-                    <Text style={styles.admin}>Super Admin</Text>
-                </Header>
+                <View>
+                    <Header style={{ backgroundColor: '#221f3b' }}>
+                        <Left>
+                            <Button transparent onPress={() => {
+                                this.props.navigation.openDrawer();
+                            }}>
+                                <Icon name='menu' />
+                            </Button>
+                        </Left>
+                        <Body>
+                            <Title> Super Admin</Title>
+                        </Body>
+                        <Right>
+                            <Button transparent onPress={() => this.props.navigation.goBack()} >
+                                <Icon name='arrow-left' type='Feather' />
+                            </Button>
+                        </Right>
+                    </Header>
+                </View>
                 <ScrollView>
                     <View style={{ margin: 25, }}>
                         <Text style={styles.title}>Create a NeW Group</Text>
+                        <Avatarr
+              rounded
+              size={200}
+              onAccessoryPress={this._toggleBottomNavigationView}
+              showAccessory
+              source={{
+                uri: this.state.avatar == null ? 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.gkvITielFNQyvCU5ME77XwHaG4%26pid%3DApi&f=1' : (this.state.avatar)
+              }}
+              containerStyle={{ backgroundColor: "green", justifyContent: "center", alignSelf: 'center',marginTop:5 }}
+            />
                         <Item rounded style={styles.item}>
                             <Input placeholder='Group Name Goes here'
                                 onChangeText={(groupname) => this.setState({ groupname })}
                                 value={this.state.groupname}
+                                style={{color:"white"}}
+                            />
+                        </Item>
+                        <Item rounded style={styles.item}>
+                            <Input placeholder='Group password Goes here'
+                                onChangeText={(password) => this.setState({ password })}
+                                value={this.state.password}
+                                style={{color:"white"}}
                             />
                         </Item>
                     </View>
                     <Button style={styles.button}
                         onPress={this.GroupHandler}
                     >
-                        <Text>Create Group</Text>
+                        <Text>Next Step</Text>
                     </Button>
-                    {/* 
-                    <View style={{ margin: 25, }}>
-
-                        <Text style={styles.title}>Delete particular Group</Text>
-                        <Item rounded style={styles.item}>
-                            <Input placeholder='Group Name to delete' style={styles.item}
-                                onChangeText={(deletinggroup) => this.setState({ deletinggroup })}
-                                value={this.state.deletinggroup}
-                            />
-                        </Item>
-                        <Button style={styles.adduser} onPress={this.deletepartgroup}>
-                            <Text>Delete</Text>
-                        </Button>
-                    </View>
-                    <View style={{ margin: 25, }}>
-
-                        <Text style={styles.title}>Delete particular User</Text>
-                        <Item rounded style={styles.item}>
-                            <Input placeholder='User email to delete' style={styles.item}
-                                onChangeText={(deletinguser) => this.setState({ deletinguser })}
-                                value={this.state.deletinguser}
-                            />
-                        </Item>
-                        <Button style={styles.adduser}
-                            onPress={this.deletepartuser}
-                        >
-                            <Text>Delete</Text>
-                        </Button>
-                    </View>
-                    */}
                 </ScrollView>
+                <BottomSheet
+              visible={this.state.visible}
+              onBackButtonPress={this._toggleBottomNavigationView}
+              onBackdropPress={this._toggleBottomNavigationView}
+            >
+              <CardItem style={styles.bottomNavigationView}>
+                <View
+                  style={{
+                    flex: 1,
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                  }}>
+                  <Text style={{ padding: 20, fontSize: 25, color: "white", fontWeight: 'bold' }}>
+                    Select one
+              </Text>
+                  <TouchableOpacity onPress={this._pickImagefromGallery}>
+                    <Avatar rounded icon={{ name: 'image', color: 'white', type: 'font-awesome' }} size={80} iconStyle={{ color: 'black' }}
+                      overlayContainerStyle={{ backgroundColor: 'orange' }} containerStyle={{ marginLeft: 8, backgroundColor: 'red', marginBottom: 2 }}>
+                    </Avatar>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={this._pickImagefromCamera}>
+                    <Avatar rounded icon={{ name: 'camera', color: 'white', type: 'font-awesome' }} size={80} iconStyle={{ color: 'black' }}
+                      overlayContainerStyle={{ backgroundColor: 'orange' }} containerStyle={{ marginLeft: 8, backgroundColor: 'red', marginBottom: 2 }}>
+                    </Avatar>
+                  </TouchableOpacity>
+                </View>
+              </CardItem>
+            </BottomSheet>
             </Container>
         );
     }
@@ -167,7 +208,7 @@ const styles = StyleSheet.create({
     },
     button: {
         borderRadius: 20,
-        backgroundColor: '#0c0c0c',
+        backgroundColor: '#0c0c',
         width: 250,
         justifyContent: "center",
         alignSelf: 'center',
@@ -196,5 +237,64 @@ const styles = StyleSheet.create({
         color: 'red',
         borderBottomWidth: 5
 
-    }
+    },
+    screen: {
+        flex: 1,
+        justifyContent: 'center',
+        backgroundColor: '#6b028d',
+        textAlign: 'center',
+      },
+      logo: {
+        width: 200,
+        height: 200,
+        alignSelf: "center",
+      },
+      fieldtitle: {
+        color: 'white',
+      },
+      fieldinput: {
+        color: 'white'
+      },
+      submission: {
+        marginTop: 15,
+        borderColor: null,
+        borderBottomColor:null,
+        borderRadius:null,
+      },
+      submit: {
+        backgroundColor: 'black',
+        borderRadius: 26,
+        justifyContent: 'center',
+        width: screenWidth - 100,
+        alignSelf: 'center'
+      },
+      submittext: {
+        color: 'white',
+        textTransform: 'capitalize',
+      },
+      signup: {
+        color: 'white',
+        fontSize: 20
+      },
+      error: {
+        color: 'red',
+        fontWeight: 'bold',
+        fontSize: 24,
+      },
+      MainContainer: {
+        flex: 1,
+        margin: 2,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingTop: Platform.OS === 'ios' ? 20 : 0,
+        backgroundColor: '#E0F7FA',
+      },
+      bottomNavigationView: {
+        backgroundColor: '#0E043B',
+        width: '100%',
+        height: 250,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 23
+      },
 });

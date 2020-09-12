@@ -16,9 +16,37 @@ export default class adduser extends React.Component {
         list: [],
         selectedItemsArray: [],
         uploadingarray: [],
+        data: [],
+        passedparam: null,
+        uploadingparams: [],
     };
-    Groupname = this.props.route.params.name
-
+    get firestore() {
+        return firebase.firestore()
+    }
+    get uid() {
+        return (firebase.auth().currentUser || {}).uid
+    }
+    get timestamp() {
+        return Date.now()
+    }
+    uploadPhotoAsync = async (uri, filename) => {
+        return new Promise(async (res, rej) => {
+            const response = await fetch(uri);
+            const file = await response.blob();
+            let upload = firebase.storage().ref(filename).put(file)
+            upload.on(
+                "state_changed",
+                snapshot => { },
+                err => {
+                    rej(err);
+                },
+                async () => {
+                    const url = await upload.snapshot.ref.getDownloadURL();
+                    res(url);
+                }
+            );
+        });
+    };
     componentDidMount() {
         const subscriber = firebase.firestore()
             .collection('users')
@@ -33,6 +61,13 @@ export default class adduser extends React.Component {
                 this.setState({ list: users })
 
             });
+        firebase.firestore().collection('users')
+            .doc(this.uid)
+            .onSnapshot(documentSnapshot => {
+                let datarecieved = documentSnapshot.data();
+                this.setState({ data: datarecieved })
+            })
+        console.log(this.props.route.params.data);
         return () => subscriber();
     }
     onSelectedItemsChange = (selectedItems) => {
@@ -40,38 +75,53 @@ export default class adduser extends React.Component {
         this.state.selectedItemsArray.push({ selectedItems })
     };
     colors = ['#1b262c', '#0f4c75', '#3282b8', '#6b028d', "#221f3b",]
-    submit = () => {
-        console.log(this.state.selectedItemsArray);
-        firebase
-            .firestore()
-            .collection("THREADS")
-            .add({
-                name: this.Groupname,
+    submit = async () => {
+        let remoteUri = null;
+        try {
+            let db = firebase.firestore().collection("THREADS").doc()
+
+            db.set({
+                name: this.props.route.params.data[0].groupname,
+                password: this.props.route.params.data[0].grouppassword,
+                avatar: null,
                 latestMessage: {
-                    text: `Admin has Created the Group  ${this.Groupname}`,
+                    text: `Admin has Created the Group  ${this.props.route.params.data[0].groupname}`,
                     createdAt: new Date().getTime(),
+                    Messageby: this.state.data.displayName
                 },
             })
-
+            {/*
             .then((docRef) => {
                 docRef.collection("MESSAGES").add({
-                    text: `You have joined the Group ${this.Groupname}`,
+                    text: `You have joined the Group ${this.props.route.params.data[0].groupname}`,
                     createdAt: new Date().getTime(),
                     system: true,
                     users: this.state.selectedItemsArray[this.state.selectedItemsArray.length - 1]
                 });
-                docRef.collection('Users').doc(this.Groupname).set({
+                docRef.collection('Users').doc(this.props.route.params.data[0].groupname).set({
                     users: this.state.selectedItemsArray[this.state.selectedItemsArray.length - 1]
                 })
-                alert(`you have successfully created the group ${this.Groupname}`)
-                this.props.navigation.navigate("Home");
+                alert(`you have successfully created the group ${this.props.route.params.data[0].groupname}`)
             });
-        firebase.firestore().collection('Members').doc(this.Groupname).set({
-            createdAt: new Date().getTime(),
-            Groupname: this.Groupname,
-            users: this.state.selectedItemsArray[this.state.selectedItemsArray.length - 1]
-        })
+        */}
+            if (this.props.route.params.data[0].avatar !== null) {
+                remoteUri = await this.uploadPhotoAsync(this.props.route.params.data[0].avatar, `Groupavatars/${this.uid}`)
+                db.set({ avatar: remoteUri }, { merge: true });
+            }
+
+            this.props.navigation.navigate("Home");
+
+            firebase.firestore().collection('Members').doc(this.props.route.params.data[0].groupname).set({
+                createdAt: new Date().getTime(),
+                Groupname: this.props.route.params.data[0].groupname,
+                users: this.state.selectedItemsArray[this.state.selectedItemsArray.length - 1]
+            })
+        } catch (error) {
+            alert(error);
+        }
+
     }
+
     render() {
 
         const { selectedItems } = this.state;
@@ -83,7 +133,7 @@ export default class adduser extends React.Component {
                     ref={(component) => { this.multiSelect = component }}
                     onSelectedItemsChange={this.onSelectedItemsChange}
                     selectedItems={selectedItems}
-                    selectText={`Add users to group ${this.Groupname}`}
+                    selectText={`Add users to group ${this.props.route.params.data[0].groupname} `}
                     searchInputPlaceholderText="Search user email"
                     onChangeInput={(text) => console.log(text)}
                     styleTextDropdown={{ color: 'white', textAlign: 'center' }}

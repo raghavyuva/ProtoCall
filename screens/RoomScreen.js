@@ -87,6 +87,7 @@ const RoomScreen = ({ route }) => {
           latestMessage: {
             text,
             createdAt: new Date().getTime(),
+            messagebyemail: currentUser.email
           },
         },
         { merge: true }
@@ -130,6 +131,7 @@ const RoomScreen = ({ route }) => {
                 latestMessage: {
                   image,
                   createdAt: new Date().getTime(),
+                  messagebyemail: currentUser.email
                 },
               },
               { merge: true }
@@ -172,6 +174,7 @@ const RoomScreen = ({ route }) => {
                 latestMessage: {
                   video,
                   createdAt: new Date().getTime(),
+                  messagebyemail: currentUser.email
                 },
               },
               { merge: true }
@@ -405,7 +408,7 @@ const RoomScreen = ({ route }) => {
       scrollToBottom
       textInputProps
       renderChatEmpty={renderLoading}
-      renderUsernameOnMessage={admin}
+      renderUsernameOnMessage={true}
     />
   );
 };

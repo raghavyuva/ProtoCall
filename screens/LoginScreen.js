@@ -41,7 +41,7 @@ if (loading) {
 
       <Text style={styles.header}>
 
-        Login 👋 
+        Login 
         
         </Text>
       <Text style={styles.headersubscript}>

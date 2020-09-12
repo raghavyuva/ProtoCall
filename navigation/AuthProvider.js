@@ -22,10 +22,11 @@ export const AuthProvider = ({ children }) => {
         },
         register: async (email, password,name) => {
           try {
+          
             await firebase
               .auth()
               .createUserWithEmailAndPassword(email, password)
-             firebase.firestore().collection('users').add({
+             firebase.firestore().collection('users').doc(uid).set({
                username:name,
                email:email,
              })
@@ -40,7 +41,11 @@ export const AuthProvider = ({ children }) => {
             alert(e)
           }
         },
+      uid:async()=>{
+          return (firebase.auth().currentUser || {}).uid
+      }
       }}
+
     >
       {children}
     </AuthContext.Provider>
