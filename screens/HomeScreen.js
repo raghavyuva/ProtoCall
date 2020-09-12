@@ -6,13 +6,16 @@ import {
   FlatList,
   Share,
   TouchableOpacity,
-  Linking
+  Linking,
+  ImageBackground,
+  Dimensions
 } from "react-native";
 import {
   Avatar,
   TouchableRipple,
   Switch
 } from 'react-native-paper';
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 import { Title, Divider, } from "react-native-paper";
 import { Header, Button, Icon, Left, Body, Right, Container, Card, Item, Input, Fab, List, ListItem, Thumbnail, CardItem } from 'native-base';
 import FormButton from "../components/FormButton";
@@ -22,7 +25,7 @@ import { firebase } from "../components/firebase";
 import Loading from "../components/Loading";
 import useStatusBar from "../utils/useStatusBar";
 import { firestore } from "firebase";
-import { Entypo ,MaterialIcons} from '@expo/vector-icons';
+import { Entypo, MaterialIcons } from '@expo/vector-icons';
 const HomeScreen = ({ navigation, }) => {
   useStatusBar("dark-content");
   const [threads, setThreads] = useState([]);
@@ -76,7 +79,7 @@ const HomeScreen = ({ navigation, }) => {
       const result = await Share.share({
         message:
           "hey, this app is cool, i really enjoyed this. im on this app join me by using this application ",
-          url: 'https://raghav.orak.in'
+        url: 'https://raghav.orak.in'
       });
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
@@ -97,6 +100,7 @@ const HomeScreen = ({ navigation, }) => {
 
   return (
     <Container style={{ backgroundColor: 'black' }}>
+
       <View>
         {enabled == false ? (
           <>
@@ -154,60 +158,62 @@ const HomeScreen = ({ navigation, }) => {
         }
 
       </View>
-      <FlatList
-        data={threads}
-        keyExtractor={(item) => item._id}
-        ItemSeparatorComponent={FlatListItemSeparator}
-        renderItem={({ item, index })  => (
-          <TouchableOpacity
-            onPress={() => {
-              if (Super == 'raghav@bhat.com') {
-                navigation.navigate("Room", { thread: item })
-              } else {
-                navigation.navigate("protected", { thread: item })
+      <ImageBackground source={require('../assets/home.jpg')} style={{ width: screenWidth, height: screenHeight }} >
+        <FlatList
+          data={threads}
+          keyExtractor={(item) => item._id}
+          ItemSeparatorComponent={FlatListItemSeparator}
+          renderItem={({ item, index }) => (
+            <TouchableOpacity
+              onPress={() => {
+                if (Super == 'raghav@bhat.com') {
+                  navigation.navigate("Room", { thread: item })
+                } else {
+                  navigation.navigate("protected", { thread: item })
+                }
               }
-            }
-            }
-          >
-            <Card style={{ backgroundColor: colors[index % colors.length] }}
+              }
             >
-              <CardItem avatar cardBody style={{ backgroundColor: colors[index % colors.length] }}>
-                <Left>
-                  <Thumbnail source={{ uri: item.avatar }} />
+              <Card style={{ backgroundColor: colors[index % colors.length] }}
+              >
+                <CardItem avatar cardBody style={{ backgroundColor: colors[index % colors.length] }}>
+                  <Left>
+                    <Thumbnail source={{ uri: item.avatar }} />
 
-                  <Body>
-                    <Text style={styles.listTitle} numberOfLines={1}>{item.name}</Text>
-                    <Text note style={styles.listDescription} numberOfLines={3}>{item.latestMessage.messagebyemail}: {item.latestMessage.text}</Text>
-                  </Body>
-                </Left>
-                <Right>
-                  <Text note style={{ color: 'white' }}>{new Date(item.latestMessage.createdAt).toDateString()}</Text>
-                </Right>
-              </CardItem>
-            </Card>
-          </TouchableOpacity>
-        )}
-      />
-      <Fab
-        active={active}
-        direction="up"
-        containerStyle={{}}
-        style={{ backgroundColor: 'brown' }}
-        position="bottomRight"
-        onPress={() => setActive(!active)}>
-        <Icon name="plus" type='Entypo' />
-        <Button style={{ backgroundColor: '#34A34F' }} onPress={() => {
-          navigation.navigate('SuperAdmin');
-        }}  >
-          <Icon name="new-message" type='Entypo' />
-        </Button>
-        <Button style={{ backgroundColor: '#3B5998' }} onPress={onShare}>
-          <Icon name="share" />
-        </Button>
-        <Button style={{ backgroundColor: '#DD5' }}   onPress={() => Linking.openURL('https://raghav.orak.in/releases')}>
-        <MaterialIcons name="new-releases" size={24} color="black" />
-        </Button>
-      </Fab>
+                    <Body>
+                      <Text style={styles.listTitle} numberOfLines={1}>{item.name}</Text>
+                      <Text note style={styles.listDescription} numberOfLines={3}>{item.latestMessage.messagebyemail}: {item.latestMessage.text}</Text>
+                    </Body>
+                  </Left>
+                  <Right>
+                    <Text note style={{ color: 'white' }}>{new Date(item.latestMessage.createdAt).toDateString()}</Text>
+                  </Right>
+                </CardItem>
+              </Card>
+            </TouchableOpacity>
+          )}
+        />
+        <Fab
+          active={active}
+          direction="up"
+          containerStyle={{}}
+          style={{ backgroundColor: 'brown', marginBottom: 60 }}
+          position="bottomRight"
+          onPress={() => setActive(!active)}>
+          <Icon name="plus" type='Entypo' />
+          <Button style={{ backgroundColor: '#34A34F' }} onPress={() => {
+            navigation.navigate('SuperAdmin');
+          }}  >
+            <Icon name="new-message" type='Entypo' />
+          </Button>
+          <Button style={{ backgroundColor: '#3B5998' }} onPress={onShare}>
+            <Icon name="share" />
+          </Button>
+          <Button style={{ backgroundColor: '#DD5' }} onPress={() => Linking.openURL('https://raghav.orak.in/releases')}>
+            <MaterialIcons name="new-releases" size={24} color="black" />
+          </Button>
+        </Fab>
+      </ImageBackground>
     </Container>
   );
 };

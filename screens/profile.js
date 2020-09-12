@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, View, Dimensions,TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Dimensions,TouchableOpacity, ImageBackground,ActivityIndicator } from 'react-native';
 import { Container, Button, Card, CardItem, Left, ListItem, List, Body, Right, Thumbnail, Content, Header, Icon, Title, Item, Input, Text, Label } from 'native-base';
 import { Constants, } from 'expo';
 import * as Permissions from 'expo-permissions';
@@ -94,6 +94,7 @@ export default class Profile extends React.Component {
         return Date.now()
     }
     async componentDidMount() {
+
         const subscriber = firebase.firestore()
             .collection('users')
             .doc(this.uid)
@@ -107,8 +108,8 @@ export default class Profile extends React.Component {
     render() {
         if (this.state.loading) {
             return (
-                <Loading />
-            );
+                <ActivityIndicator size={50} color='red' />
+                );
         }
         return (
             <Container style={{ backgroundColor: 'black' }}>
@@ -157,16 +158,17 @@ export default class Profile extends React.Component {
                             <Avatar
                                 rounded
                                 source={{ uri: this.state.data.avatar }}
-                                size='xlarge'
-                                showAccessory
+                                size='large'
                                 onAccessoryPress={this._toggleBottomNavigationView}
                             />
                             <Body>
-                                <Text style={{ color: 'white', fontSize: 28, fontWeight: 'bold', }}>{this.state.data.displayName}</Text>
-
+                                <Text style={{ color: 'white', fontSize: 22, fontWeight: 'bold', }}numberOfLines={2}>{this.state.data.displayName}</Text>
                             </Body>
                         </Left>
-
+                       { /*
+                     <Button style={{borderRadius:20,marginTop:12,backgroundColor:'red'}} onPress={()=>this.props.navigation.navigate('editprofile')}>
+                         <Text style={{textTransform:'capitalize'}}>edit profile</Text></Button>
+                       */}
                     </CardItem>
                     <CardItem style={{ backgroundColor: "yellow" }}>
                         <Left>
@@ -179,10 +181,9 @@ export default class Profile extends React.Component {
                         </Button>
                     </CardItem>
                 </Card>
-                <View>
 
-                </View>
-                <View style={{ backgroundColor: 'grey', position: 'absolute', bottom: 0, width: screenWidth }}>
+               <ImageBackground source={require('../assets/backg.jpg')} style={{width:screenWidth,height:600}} >
+                <View style={{  position: 'absolute', bottom: 0, width: screenWidth }}>
                     <ListItem style={{ alignSelf: 'center' }}>
                         <Button style={{ alignSelf: 'center', justifyContent: 'center', alignContent: 'center', backgroundColor: 'black' }} onPress={() => {
                             firebase.auth().signOut();
@@ -191,6 +192,7 @@ export default class Profile extends React.Component {
                         </Button>
                     </ListItem>
                 </View >
+                </ImageBackground>
                 <BottomSheet
               visible={this.state.visible}
               onBackButtonPress={this._toggleBottomNavigationView}

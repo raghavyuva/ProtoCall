@@ -21,6 +21,7 @@ import {
   TouchableRipple,
   Switch
 } from 'react-native-paper';
+import Editprofile from "../screens/editprofile";
 const ChatAppStack = createStackNavigator();
 const ModalStack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -84,6 +85,7 @@ const HomeStack = () => {
       <ModalStack.Screen name='settings' component={Settings} />
       <ModalStack.Screen name='feedback' component={Feedback} />
       <ModalStack.Screen name='faqs' component={Faqs} />
+      <ModalStack.Screen name='editprofile' component={Editprofile} />
     </Drawer.Navigator>
   );
 };

@@ -384,7 +384,7 @@ const RoomScreen = ({ route }) => {
   const renderLoading = () => {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size={100} color={colors.primary} />
+        <ActivityIndicator size={50} color={colors.primary} />
       </View>
     );
   };
@@ -409,6 +409,7 @@ const RoomScreen = ({ route }) => {
       textInputProps
       renderChatEmpty={renderLoading}
       renderUsernameOnMessage={true}
+      messagesContainerStyle={()=>{<ImageBackground source={require('../assets/home.jpg')} style={{width:screenWidth,height:screenHeight}}/>}}
     />
   );
 };

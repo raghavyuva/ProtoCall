@@ -68,6 +68,7 @@ const currentUser = user.toJSON();
                 </View>
                 <DrawerContentScrollView {...props}>
                     <Drawer.Section style={styles.drawerSection}>
+                        {/** 
                         <DrawerItem
                             icon={({ color, size }) => (
                                 <Feather name="settings" size={24} color="white" />
@@ -77,6 +78,7 @@ const currentUser = user.toJSON();
                             style={{ backgroundColor: 'orange', marginTop: 20 }}
                             onPress={() => props.navigation.navigate('settings' )}
                         />
+                            */}
                         <DrawerItem
                             icon={({ color, size }) => (
                                 <SimpleLineIcons name="support" size={24} color="white" />
@@ -126,6 +128,7 @@ const currentUser = user.toJSON();
                             // onPress={() => Actions.report()}
                             onPress={() => props.navigation.navigate( 'feedback')}
                         />
+                        {/** 
                         <DrawerItem
                             icon={({ color, size }) => (
                                 <FontAwesome name="question-circle" size={24} color="white" />
@@ -136,6 +139,7 @@ const currentUser = user.toJSON();
                             // onPress={() => Actions.report()}
                             onPress={() => props.navigation.navigate('faqs')}
                         />
+                            */}
                     </Drawer.Section>
                 </DrawerContentScrollView>
                 <Drawer.Section style={styles.bottomDrawerSection}>

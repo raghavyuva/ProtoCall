@@ -24,8 +24,6 @@ export default class Signuppage extends React.Component {
         pass: '',
         username: '',
         number: '',
-        number: '',
-        usn: '',
         avatar: null,
       },
       errorm: null,
@@ -114,26 +112,36 @@ export default class Signuppage extends React.Component {
     return Date.now()
   }
   onSignupPress = async () => {
-
-    let remoteUri = null
-    try {
-      await firebase.auth().createUserWithEmailAndPassword(this.state.user.email, this.state.user.pass)
-      let db = this.firestore.collection('users').doc(this.uid)
-
-      db.set({
-        displayName: this.state.user.username,
-        email: this.state.user.email,
-        number: this.state.user.number,
-        avatar: null,
-      })
-      if (this.state.user.avatar !== null) {
-        remoteUri = await this.uploadPhotoAsync(this.state.user.avatar, `avatars/${this.uid}`)
-        db.set({ avatar: remoteUri }, { merge: true })
+    if (!this.state.user.avatar || !this.state.user.username || !this.state.user.number) {
+      alert('sorry you can\'t leave any of the fields');
+    } else {
+      if (this.state.user.number.length == 10) {
+        let remoteUri = null
+        try {
+          await firebase.auth().createUserWithEmailAndPassword(this.state.user.email, this.state.user.pass)
+          let db = this.firestore.collection('users').doc(this.uid)
+    
+          db.set({
+            displayName: this.state.user.username,
+            email: this.state.user.email,
+            number: this.state.user.number,
+            avatar: null,
+          })
+          if (this.state.user.avatar !== null) {
+            remoteUri = await this.uploadPhotoAsync(this.state.user.avatar, `avatars/${this.uid}`)
+            db.set({ avatar: remoteUri }, { merge: true })
+          }
+        }
+        catch (error) {
+          alert(error);
+        }
       }
+    else{
+      alert('phone number must be valid one')
     }
-    catch (error) {
-      alert(error);
+
     }
+    
   }
   async componentDidMount() {
     await Font.loadAsync({
