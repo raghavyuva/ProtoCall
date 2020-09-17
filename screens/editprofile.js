@@ -73,6 +73,7 @@ export default class Editprofile extends React.Component {
       };
       componentDidMount() {
         this.getPermissionAsync();
+        console.log(this.uid);
       }
       _toggleBottomNavigationView = () => {
         //Toggling the visibility state of the bottom sheet
@@ -144,19 +145,69 @@ export default class Editprofile extends React.Component {
        if (!this.state.username) {
            alert('enter username to update');
        } else {
-           
+           firebase.
+           firestore()
+           .collection('users')
+           .doc(this.uid).update({
+             displayName:this.state.username
+           })
+        this.props.navigation.navigate('profile');
        }
       }
-      updateavatar =()=>{
+      uploadPhotoAsync = async (uri, filename) => {
+        return new Promise(async (res, rej) => {
+          const response = await fetch(uri);
+          const file = await response.blob();
+          let upload = firebase.storage().ref(filename).put(file)
+          upload.on(
+            "state_changed",
+            snapshot => { },
+            err => {
+              rej(err);
+            },
+            async () => {
+              const url = await upload.snapshot.ref.getDownloadURL();
+              res(url);
+            }
+          );
+        });
+      };
+      updateavatar =async()=>{
           if (!this.state.avatar) {
             alert('Add photo  to update');
           } else {
-              
+            let remoteUri = null
+            let db = this.firestore.collection('users').doc(this.uid)
+            remoteUri = await this.uploadPhotoAsync(this.state.avatar, `avatars/${this.uid}`)
+            db.update({ avatar: remoteUri });
+            this.props.navigation.navigate('profile');
           }
       }
     render() {
+      if (this.state.Loading) {
+        return(
+          <Loading/>
+        );
+      }
         return (
             <Container style={styles.screen}>
+                                          <Header style={{ backgroundColor: '#221f3b' }}>
+                                <Left>
+                                    <Button transparent onPress={()=>{
+                  this.props.navigation.openDrawer();
+                }}>
+                                        <Icon name='menu' />
+                                    </Button>
+                                </Left>
+                                <Body>
+                                    <Title>Edit Profile</Title>
+                                </Body>
+                                <Right>
+                                    <Button transparent onPress={() => this.props.navigation.goBack()} >
+                                        <Icon name='arrow-left' type='Feather' />
+                                    </Button>
+                                </Right>
+                            </Header>
             <Content>
 
               <Card style={styles.card}>
@@ -166,7 +217,7 @@ export default class Editprofile extends React.Component {
                                 size='xlarge'
                                 showAccessory
                                 onAccessoryPress={this._toggleBottomNavigationView}
-                                containerStyle={{backgroundColor:'red',alignSelf:'center'}}
+                                containerStyle={{alignSelf:'center',borderColor:'red',borderWidth:5}}
                             />
                                               <Item stackedLabel style={styles.submission}>
                     <Button style={styles.submit}  onPress={this.updateavatar}><Text style={styles.submittext}>Update Avatar</Text></Button>

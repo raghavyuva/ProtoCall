@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import {
   ImageBackground,
-  SafeAreaView, StyleSheet, Dimensions, FlatList, TextInput, AsyncStorage, Alert, TouchableOpacity
+  SafeAreaView, StyleSheet, Dimensions, FlatList, TextInput, AsyncStorage, Alert, TouchableOpacity,Modal,TouchableWithoutFeedback
 } from 'react-native';
-import { Container, Header, Content, Item, Input, Button, Text, View, Thumbnail, Card, Form, Label, CardItem, ActionSheet } from 'native-base';
+import { Container, Header, Content, Item, Input, Button, Text, View, Thumbnail, Card, Form, Label, CardItem, ActionSheet,Icon } from 'native-base';
 import * as Font from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
 import { ListItem, Avatar as Avatarr, Tooltip, Paragraph, Caption } from 'react-native-elements';
@@ -15,6 +15,10 @@ import { BottomSheet } from 'react-native-btr';
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 import * as firebase from 'firebase';
 import { Avatar } from 'react-native-elements';
+import data from './countries';
+const defaultFlag = data.filter(
+  obj => obj.name === 'India'
+  )[0].flag
 export default class Signuppage extends React.Component {
   constructor(props) {
     super(props);
@@ -23,16 +27,49 @@ export default class Signuppage extends React.Component {
         email: "",
         pass: '',
         username: '',
-        number: '',
         avatar: null,
       },
       errorm: null,
+      flag: defaultFlag,
+    modalVisible: false,
+    phoneNumber: '',
+
     };
   }
 
   state = {
     loading: true,
     visible: false,
+  }
+  onChangeText(key, value) {
+    this.setState({
+      [key]: value
+    })
+  }
+  showModal() {
+    this.setState({ modalVisible: true })
+  }
+  hideModal() {
+    this.setState({ modalVisible: false })
+    // Refocus on the Input field after selecting the country code
+    this.refs.PhoneInput._root.focus()
+  }
+  async getCountry(country) {
+    const countryData = await data
+    try {
+      const countryCode = await countryData.filter(
+        obj => obj.name === country
+      )[0].dial_code
+      const countryFlag = await countryData.filter(
+        obj => obj.name === country
+      )[0].flag
+      // Set data from user choice of country
+      this.setState({ phoneNumber: countryCode, flag: countryFlag })
+      await this.hideModal()
+    }
+    catch (err) {
+      console.log(err)
+    }
   }
   getPermissionAsync = async () => {
     if (Constants.platform.android) {
@@ -112,10 +149,10 @@ export default class Signuppage extends React.Component {
     return Date.now()
   }
   onSignupPress = async () => {
-    if (!this.state.user.avatar || !this.state.user.username || !this.state.user.number) {
+    if (!this.state.user.avatar || !this.state.user.username) {
       alert('sorry you can\'t leave any of the fields');
     } else {
-      if (this.state.user.number.length == 10) {
+      if (this.state.phoneNumber.length == 13) {
         let remoteUri = null
         try {
           await firebase.auth().createUserWithEmailAndPassword(this.state.user.email, this.state.user.pass)
@@ -124,7 +161,7 @@ export default class Signuppage extends React.Component {
           db.set({
             displayName: this.state.user.username,
             email: this.state.user.email,
-            number: this.state.user.number,
+            number: this.state.phoneNumber,
             avatar: null,
           })
           if (this.state.user.avatar !== null) {
@@ -155,6 +192,8 @@ export default class Signuppage extends React.Component {
     this.props.navigation.navigate('Login');
   }
   render() {
+    let { flag } = this.state
+    const countryData = data
     if (this.state.loading) {
       return (
         <Container></Container>
@@ -215,11 +254,82 @@ export default class Signuppage extends React.Component {
                 <Input style={styles.fieldinput} onChangeText={(email) => this.setState({ user: { ...this.state.user, email } })} value={this.state.user.email} />
 
               </Item>
-              <Item stackedLabel>
-                <Label style={styles.fieldtitle} >Phone Number</Label>
-                <Input style={styles.fieldinput} onChangeText={(number) => this.setState({ user: { ...this.state.user, number } })} value={this.state.user.number} />
-              </Item>
-
+              <View style={styles.container}>
+                  <Item >
+                 
+                    <View>
+                      <TouchableOpacity  onPress={() => this.showModal()}>
+                      <Text style={{fontSize: 40}}>{flag}</Text>
+                      </TouchableOpacity>
+                      </View>
+                    <Input
+                     style={styles.fieldinput}
+                      placeholder='7665544338'
+                      placeholderTextColor='#adb4bc'
+                      keyboardType={'phone-pad'}
+                      returnKeyType='done'
+                      autoCapitalize='none'
+                      autoCorrect={false}
+                      secureTextEntry={false}
+                      ref='PhoneInput'
+                      value={this.state.phoneNumber}
+                      onChangeText={(val) => {
+                        if (this.state.phoneNumber===''){
+                          this.onChangeText('phoneNumber', '+91', + val)
+                        } else {
+                          this.onChangeText('phoneNumber', val)
+                        }}
+                      }
+                    />
+                    <Modal
+                      animationType="slide" 
+                      transparent={false}
+                      visible={this.state.modalVisible}>
+                      <View style={{ flex: 1,}}>
+                        <View style={{ flex: 10, paddingTop: 10, backgroundColor: '#0e043b' }}>
+                          <Text style={{fontSize: 24, color: '#fff'}}>Select Country</Text>
+                          <View style={{ flex: 10, paddingTop: 10, backgroundColor: '#505' }}>
+                          <FlatList
+                            data={countryData}
+                            keyExtractor={(item, index) => index.toString()}
+                            renderItem={
+                              ({ item }) =>
+                                <TouchableWithoutFeedback 
+                                  onPress={() => this.getCountry(item.name)}>
+                                  <View 
+                                    style={
+                                      [
+                                        styles.countryStyle, 
+                                        {
+                                          flexDirection: 'row', 
+                                          alignItems: 'center',
+                                          justifyContent: 'space-between'
+                                        }
+                                      ]
+                                    }>
+                                    <Text style={{fontSize: 45}}>
+                                      {item.flag}
+                                    </Text>
+                                    <Text style={{fontSize: 20, color: '#fff'}}>
+                                      {item.name} ({item.dial_code})
+                                    </Text>
+                                  </View>
+                                </TouchableWithoutFeedback>
+                            }
+                          />
+                          </View>
+                        </View>
+                        <TouchableOpacity
+                          onPress={() => this.hideModal()} 
+                          style={styles.closeButtonStyle}>
+                          <Text style={styles.textStyle}>
+                            Close
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    </Modal>
+                  </Item>
+            </View>
               <Item stackedLabel>
                 <Label style={styles.fieldtitle}>Password</Label>
                 <Input style={styles.fieldinput} onChangeText={(pass) => this.setState({ user: { ...this.state.user, pass } })} value={this.state.user.pass} />
@@ -245,7 +355,7 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     justifyContent: 'center',
-    backgroundColor: '#6b028d',
+    backgroundColor: '#0e043b',
     textAlign: 'center',
   },
   logo: {
@@ -255,7 +365,7 @@ const styles = StyleSheet.create({
   },
   card: {
     marginTop: screenHeight - 750,
-    backgroundColor: '#b94c57'
+    backgroundColor: '#0e043b'
   },
   fieldtitle: {
     color: 'white',
@@ -305,4 +415,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 23
   },
+  textStyle: {
+    padding: 5,
+    fontSize: 20,
+    color: '#fff',
+    fontWeight: 'bold'
+  },
+  closeButtonStyle: {
+    padding: 1,
+    alignItems: 'center', 
+    backgroundColor: '#0e043b',
+  },
+  input: {
+    flex: 1,
+    fontSize: 17,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+
+
 });

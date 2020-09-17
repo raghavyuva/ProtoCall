@@ -78,7 +78,7 @@ export default class adduser extends React.Component {
     submit = async () => {
         let remoteUri = null;
         try {
-            let db = firebase.firestore().collection("THREADS").doc()
+            let db = firebase.firestore().collection("THREADS").doc(this.props.route.params.data[0].groupname)
 
             db.set({
                 name: this.props.route.params.data[0].groupname,
@@ -110,7 +110,9 @@ export default class adduser extends React.Component {
             }
 
             this.props.navigation.navigate("Home");
-
+            firebase.firestore().collection('users').doc(this.uid).update({
+                Groupname: [this.props.route.params.data[0].groupname],
+            })
             firebase.firestore().collection('Members').doc(this.props.route.params.data[0].groupname).set({
                 createdAt: new Date().getTime(),
                 Groupname: this.props.route.params.data[0].groupname,

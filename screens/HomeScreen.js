@@ -17,7 +17,7 @@ import {
 } from 'react-native-paper';
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 import { Title, Divider, } from "react-native-paper";
-import { Header, Button, Icon, Left, Body, Right, Container, Card, Item, Input, Fab, List, ListItem, Thumbnail, CardItem } from 'native-base';
+import { Header, Button, Icon, Left, Body, Right, Container, Card, Item, Input, Fab, List, ListItem, Thumbnail, CardItem, Toast } from 'native-base';
 import FormButton from "../components/FormButton";
 import colors from "../config/colors";
 import { AuthContext } from "../navigation/AuthProvider";
@@ -78,17 +78,17 @@ const HomeScreen = ({ navigation, }) => {
     try {
       const result = await Share.share({
         message:
-          "hey, this app is cool, i really enjoyed this. im on this app join me by using this application ",
+          "hey, this ProtoCall is cool, i really enjoyed this. i\'m on this app join me by using this application.Contact developer to get it download contact Now: https://raghav.orak.in",
         url: 'https://raghav.orak.in'
       });
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
           // shared with activity type of result.activityType
         } else {
-          // shared
+          Toast.show({'text':'please share us '});
         }
       } else if (result.action === Share.dismissedAction) {
-        // dismissed
+        Toast.show({'text':'please share us ', type: "danger",position:'bottom'});
       }
     } catch (error) {
       alert(error.message);
@@ -116,20 +116,9 @@ const HomeScreen = ({ navigation, }) => {
                 <Title style={{ color: 'white' }}>Home</Title>
               </Body>
               <Right>
-                <Button transparent onPress={toggling}>
-                  <Icon name='search' type='FontAwesome5' />
+                <Button transparent onPress={onShare}>
+                  <Icon name='share' type='Entypo' />
                 </Button>
-                {Super == 'raghav@bhat.com' ? (
-                  <>
-                    <Button transparent onPress={() => navigation.navigate('SuperAdmin')}>
-                      <Icon name='user-secret' type='FontAwesome5' />
-                    </Button>
-                  </>
-                ) : (
-                    <View>
-                    </View>
-                  )}
-
 
                 <Button transparent onPress={() => navigation.navigate('profile')}>
                   <Avatar.Image
@@ -140,7 +129,6 @@ const HomeScreen = ({ navigation, }) => {
               </Right>
             </Header>
           </>
-
         ) : (
             <Header searchBar rounded style={{ backgroundColor: '#221f3b' }}>
               <Item>
@@ -197,19 +185,20 @@ const HomeScreen = ({ navigation, }) => {
           active={active}
           direction="up"
           containerStyle={{}}
-          style={{ backgroundColor: 'brown', marginBottom: 60 }}
+          style={{ backgroundColor: 'brown', bottom: 40,position:'absolute' }}
           position="bottomRight"
           onPress={() => setActive(!active)}>
           <Icon name="plus" type='Entypo' />
-          <Button style={{ backgroundColor: '#34A34F' }} onPress={() => {
+
+          <Button style={{ backgroundColor: 'green',marginBottom:40 }} onPress={() => {
             navigation.navigate('SuperAdmin');
           }}  >
             <Icon name="new-message" type='Entypo' />
           </Button>
-          <Button style={{ backgroundColor: '#3B5998' }} onPress={onShare}>
+          <Button style={{ backgroundColor: '#3B5998',marginBottom:40 }} onPress={onShare}>
             <Icon name="share" />
-          </Button>
-          <Button style={{ backgroundColor: '#DD5' }} onPress={() => Linking.openURL('https://raghav.orak.in/releases')}>
+          </Button>          
+          <Button style={{ backgroundColor: '#DD5',marginBottom:40 }} onPress={() => Linking.openURL('https://raghav.orak.in/releases')}>
             <MaterialIcons name="new-releases" size={24} color="black" />
           </Button>
         </Fab>

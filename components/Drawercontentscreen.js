@@ -47,10 +47,10 @@ const currentUser = user.toJSON();
                             }}
                             size={80}
                             style={styles.image}
-                           
+                        
                         />
                         <View style={{ marginLeft: 15, flexDirection: 'column' }}>
-                            <Title style={styles.title} numberOfLines={1}> {users.displayName} </Title>
+                        <Text style={{color:'white',fontSize:15,fontWeight:'bold',marginTop:15}} numberOfLines={2} note>{users.displayName}</Text>
                             <Caption style={styles.caption}> {users.number} </Caption>
                         </View>
                     </View>
@@ -86,7 +86,7 @@ const currentUser = user.toJSON();
                             labelStyle={{ color: 'white' }}
                             label="Support"
                             style={{ backgroundColor: 'green', marginTop: 20 }}
-                            onPress={() => Linking.openURL('https://example.in')}
+                            onPress={() => Linking.openURL('https://raghav.orak.in')}
 
                         />
                         <DrawerItem
@@ -115,7 +115,7 @@ const currentUser = user.toJSON();
                             labelStyle={{ color: 'white' }}
                             label="join official channel"
                             style={{ backgroundColor: 'red', marginTop: 20 }}
-                            onPress={() => Linking.openURL('https://t.me/orakin')}
+                            onPress={() => Linking.openURL('https://t.me/proto_call')}
 
                         />
                         <DrawerItem

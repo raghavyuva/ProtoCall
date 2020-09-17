@@ -10,7 +10,6 @@ import Loading from '../components/Loading';
 import { Avatar } from 'react-native-elements';
 const TAB_BAR_HEIGHT = 20;
 import * as firebase from 'firebase';
-import { FlatList } from 'react-native-gesture-handler';
 require('firebase/auth');
 import { BottomSheet } from 'react-native-btr';
 require('firebase/firestore');
@@ -114,8 +113,6 @@ export default class Profile extends React.Component {
         return (
             <Container style={{ backgroundColor: 'black' }}>
                 <View>
-                    {this.state.search_bar_enabled == false ? (
-                        <>
                             <Header style={{ backgroundColor: '#221f3b' }}>
                                 <Left>
                                     <Button transparent onPress={()=>{
@@ -133,23 +130,6 @@ export default class Profile extends React.Component {
                                     </Button>
                                 </Right>
                             </Header>
-                        </>
-
-                    ) : (
-                            <Header searchBar rounded style={{ backgroundColor: '#221f3b' }}>
-                                <Item>
-                                    <Icon name="ios-search" />
-                                    <Input placeholder="What you are looking for?" clearButtonMode='always' onChangeText={this.search} value={this.state.searchText} autoCapitalize='none' autoCorrect={false} />
-                                    <Button transparent enable={this.state.enable} onPress={this.toggling}>
-                                        <Entypo name="cross" size={26} color="red" />
-                                    </Button>
-                                </Item>
-                                <Button transparent>
-                                    <Text>Search</Text>
-                                </Button>
-                            </Header>
-                        )
-                    }
 
                 </View>
                 <Card style={{ backgroundColor: 'black' }}>
@@ -165,10 +145,10 @@ export default class Profile extends React.Component {
                                 <Text style={{ color: 'white', fontSize: 22, fontWeight: 'bold', }}numberOfLines={2}>{this.state.data.displayName}</Text>
                             </Body>
                         </Left>
-                       { /*
+                       
                      <Button style={{borderRadius:20,marginTop:12,backgroundColor:'red'}} onPress={()=>this.props.navigation.navigate('editprofile')}>
                          <Text style={{textTransform:'capitalize'}}>edit profile</Text></Button>
-                       */}
+                       
                     </CardItem>
                     <CardItem style={{ backgroundColor: "yellow" }}>
                         <Left>
