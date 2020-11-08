@@ -49,7 +49,7 @@
 - create your group and share password with your zone.
 
 ## Contributors
-> https://github.com/yuvaraghav03
+> https://github.com/raghavyuva
 
 > https://github.com/Prasannakumar05/
 
