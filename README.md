@@ -9,12 +9,6 @@
 - Create number of groups and add people.
 - Contact developer to delete particular group (just ping in telegram support).
 
-## 
-<div style="flexdirection:'row'">
-<img src="/assets/splash.png" width="300" height="500"/>
-<img src="/assets/appdemo.png" width="300" height="500" />
-</div>
-
 
 ## Note
   
